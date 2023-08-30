@@ -1,15 +1,20 @@
 import {AnimatePresence, motion} from 'framer-motion';
-import Logo from '../../../assets/react.svg'
+import Logo from '../../../assets/react.svg';
+import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import './login.scss'
 import {useState} from "react";
 
-function Login() {
 
-    function handleConfirmEmail() {
-        setshowEmail (false)
+function Login() {
+    function handleBack() {
+        setshowEmail(true)
     }
 
-    const [showEmail,setshowEmail] = useState(true);
+    function handleContinue() {
+        setshowEmail(false)
+    }
+
+    const [showEmail, setshowEmail] = useState(true);
     return (
         <>
             <div className="bg-white">
@@ -39,31 +44,63 @@ function Login() {
                                     <a className="font-medium text-2xl">Confidential Buzz</a>
                                 </div>
                             </div>
-                            <div className="flex flex-1 flex-col  justify-center space-y-5 max-w-md">
-                                <div className="flex flex-col space-y-2 text-center">
-                                    <h2 className="text-3xl md:text-4xl font-bold">Sign in to account</h2>
-                                    <p className="text-md md:text-xl">Sign up or log in to place the order,no password
-                                        require!</p>
+                            <div className="flex flex-1 flex-col justify-center max-w-md">
+                                <div className="flex flex-col">
+                                    {showEmail &&
+                                        <>
+                                            <div >
+                                                <h2 className="text-3xl md:text-4xl font-bold">Sign in to account</h2>
+                                                <p className="text-md md:text-xl">Sign up or log in to place the order, no password
+                                                    require!</p>
+                                            </div>
+                                        </>
+                                    }
+                                    {!showEmail &&
+                                        <div>
+
+                                            <div className="inline-block">
+                                                <motion.span whileHover={{ scale: 1.05 }}
+                                                             transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                                    className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer"
+                                                    onClick={() => handleBack()}><span
+                                                    className="rounded-full w-6 h-6 flex items-center justify-start content-center"><i><img
+                                                    alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
+                                            </div>
+                                            <h2 className="text-3xl md:text-4xl font-bold">Welcome back !</h2>
+                                            <p className="text-md md:text-xl">Sign up or log in to place the order, no password
+                                                require!</p>
+
+                                        </div>
+                                    }
+
+
                                 </div>
-                                <div className="flex flex-col max-w-md space-y-5 relative">
+                                <div className="flex flex-col max-w-md mt-5 relative">
                                     <AnimatePresence>
-                                        { showEmail &&
-                                        <motion.input type="text" placeholder="Email" exit={{x: '100%', opacity: "0",position:"absolute"}}
-                                                      className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                        {showEmail &&
+                                            <motion.input type="text" placeholder="Email"
+                                                          initial={{x: '100%', opacity: 1, position: 'absolute'}}
+                                                          animate={{x: 0, opacity: 1, position: 'initial'}}
+                                                          exit={{x: '100%', opacity: "0", position: "absolute"}}
+                                                          className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
                                         }
                                     </AnimatePresence>
                                     <AnimatePresence>
-                                        { !showEmail &&
-                                        <motion.input type="text" placeholder="Password" initial={{x:'-100%',opacity:0, position:'absolute'}} animate={{x:0, opacity: 1, position:'initial'}}
-                                                      className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                        {!showEmail &&
+
+                                            <motion.input type="text" placeholder="Password"
+                                                          initial={{x: '-100%', opacity: 0, position: 'absolute'}}
+                                                          animate={{x: 0, opacity: 1, position: 'initial'}}
+                                                          className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+
                                         }
                                     </AnimatePresence>
                                     <button
-                                        className="flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black bg-black text-white"
-                                        onClick={() => handleConfirmEmail()}>
+                                        className="flex mt-5 items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black bg-black text-white"
+                                        onClick={() => handleContinue()}>
                                         Continue
                                     </button>
-                                    <div className="flex justify-center items-center">
+                                    <div className="flex justify-center items-center my-5">
                                         <span className="w-full border border-black"></span>
                                         <span className="px-4">Or</span>
                                         <span className="w-full border border-black"></span>
