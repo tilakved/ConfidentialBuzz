@@ -4,17 +4,63 @@ import Logo from '../../../../public/vite.svg';
 import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import {useState} from "react";
 
+const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
+const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+
 
 function Login() {
+    const [showEmail, setShowEmail] = useState(true);
+    const [emailValue, setEmailValue] = useState('');
+    const [passwordValue, setPasswordValue] = useState('');
+
     function handleBack() {
         setShowEmail(true)
     }
 
-    function handleContinue() {
-        setShowEmail(false)
+    function validateEmail() {
+        let currentEmailState = structuredClone(emailValue);
+        if (validEmail.test(currentEmailState)) {
+            return true;
+        } else {
+            console.log('wrong email', validEmail.test(currentEmailState))
+            return false;
+        }
     }
 
-    const [showEmail, setShowEmail] = useState(true);
+    function validatePassword() {
+        let currentPasswordState = structuredClone(passwordValue);
+        if (validPassword.test(currentPasswordState)) {
+            return true;
+        } else {
+            console.log('wrong password', validPassword.test(currentPasswordState))
+            return false;
+        }
+    }
+
+    function handleContinue() {
+        let currentEmailState = structuredClone(showEmail);
+        let isEmailValid = validateEmail();
+
+        if (currentEmailState && isEmailValid) {
+            setShowEmail(false)
+        } else {
+            let isPasswordValid = validatePassword();
+            if (!currentEmailState && isPasswordValid) {
+                console.log('all validated call API here')
+            }
+        }
+    }
+
+    function getValueEmail(e: any) {
+        let currentEmailValue = e.target.value
+        setEmailValue(currentEmailValue)
+    }
+
+    function getValuePassword(e: any) {
+        let currentPasswordValue = e.target.value
+        setPasswordValue(currentPasswordValue)
+    }
+
     return (
         <>
             <div className="bg-white">
@@ -29,7 +75,8 @@ function Login() {
                                 <a className="font-medium text-3xl titleFont">Confidential Buzz</a>
                             </div>
                             <div className='space-y-5'>
-                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug font-extrabold">Elevating the Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
+                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug font-extrabold">Elevating the
+                                    Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
                             </div>
                             <p className="font-medium"></p>
                         </div>
@@ -48,9 +95,11 @@ function Login() {
                                     <div className="flex flex-col">
                                         {showEmail &&
                                             <>
-                                                <div >
-                                                    <h2 className="text-3xl md:text-4xl font-bold">Sign in to account</h2>
-                                                    <p className="text-md md:text-xl">Sign up or log in to place the order, no password
+                                                <div>
+                                                    <h2 className="text-3xl md:text-4xl font-bold">Sign in to
+                                                        account</h2>
+                                                    <p className="text-md md:text-xl">Sign up or log in to place the
+                                                        order, no password
                                                         require!</p>
                                                 </div>
                                             </>
@@ -59,15 +108,20 @@ function Login() {
                                             <div>
 
                                                 <div className="inline-block">
-                                                    <motion.span whileHover={{ scale: 1.05 }}
-                                                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                                    <motion.span whileHover={{scale: 1.05}}
+                                                                 transition={{
+                                                                     type: "spring",
+                                                                     stiffness: 400,
+                                                                     damping: 10
+                                                                 }}
                                                                  className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer"
                                                                  onClick={() => handleBack()}><span
                                                         className="rounded-full w-6 h-6 flex items-center justify-start content-center"><i><img
                                                         alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
                                                 </div>
                                                 <h2 className="text-3xl md:text-4xl font-bold">Welcome back !</h2>
-                                                <p className="text-md md:text-xl">Sign up or log in to place the order, no password
+                                                <p className="text-md md:text-xl">Sign up or log in to place the order,
+                                                    no password
                                                     require!</p>
 
                                             </div>
@@ -78,7 +132,9 @@ function Login() {
                                     <div className="flex flex-col max-w-md mt-5 relative">
                                         <AnimatePresence>
                                             {showEmail &&
-                                                <motion.input type="text" placeholder="Email"
+                                                <motion.input type="text" placeholder="Email" onChange={() => {
+                                                    getValueEmail(event)
+                                                }}
                                                               initial={{x: '100%', opacity: 1, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               exit={{x: '100%', opacity: "0", position: "absolute"}}
@@ -88,7 +144,9 @@ function Login() {
                                         <AnimatePresence>
                                             {!showEmail &&
 
-                                                <motion.input type="text" placeholder="Password"
+                                                <motion.input type="password" placeholder="Password" onChange={() => {
+                                                    getValuePassword(event)
+                                                }}
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
