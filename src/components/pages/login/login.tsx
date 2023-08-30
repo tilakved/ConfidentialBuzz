@@ -4,6 +4,7 @@ import Logo from '../../../../public/vite.svg';
 import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import {useRef, useState} from "react";
 import {failAlert, successAlert} from "../../../swal/swal.ts"
+import {useNavigate} from "react-router-dom";
 
 const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
@@ -13,6 +14,7 @@ function Login() {
     const [showEmail, setShowEmail] = useState(true);
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
+    const navigate = useNavigate();
 
     function handleBack() {
         setShowEmail(true)
@@ -54,9 +56,10 @@ function Login() {
             if (!currentEmailState) {
                 if (isPasswordValid) {
                     console.log('all validated call API here')
+                    navigate('/home');
                     successAlert('Login', 'successfully logged in'); //add to api
                 } else {
-                    failAlert('error', 'Please follow the format of 1 Capital Letter, 1 number and 1 special character', 5000);
+                    failAlert('error', 'Please follow the format of minimum 8 characters with 1 Capital Letter, 1 number and 1 special character', 5000);
                 }
             }
 
@@ -92,7 +95,6 @@ function Login() {
                             </div>
                             <p className="font-medium"></p>
                         </div>
-
                         <div className="flex flex-1 flex-col items-center justify-center px-10 relative bg-chat">
                             <div className="flex lg:hidden justify-between items-center w-full py-4">
                                 <div className="flex items-center justify-start content-center space-x-3">
@@ -138,8 +140,6 @@ function Login() {
 
                                             </div>
                                         }
-
-
                                     </div>
                                     <div className="flex flex-col max-w-screen-md mt-5 relative">
                                         <AnimatePresence>
@@ -156,7 +156,6 @@ function Login() {
                                         </AnimatePresence>
                                         <AnimatePresence>
                                             {!showEmail &&
-
                                                 <motion.input type="password" placeholder="Password"
                                                               value={passwordValue} onChange={() => {
                                                     getValuePassword(event)
@@ -164,7 +163,6 @@ function Login() {
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
-
                                             }
                                         </AnimatePresence>
                                         <button
@@ -197,8 +195,6 @@ function Login() {
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
 

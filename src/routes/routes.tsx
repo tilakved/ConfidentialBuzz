@@ -1,21 +1,23 @@
 import Login from "../components/pages/login/login.tsx";
+import Home from "../components/pages/home/home.tsx";
 import App from "../App.tsx";
 import {Navigate, redirect, RouteObject} from "react-router-dom";
 
-const routes:RouteObject[] = [
+const routes: RouteObject[] = [
     {
         path: '',
         element: <App/>,
         children: [
             {
                 path: '',
-                loader: findUser(),
                 element: <Navigate to={'login'} replace={true}/>
             }, {
                 path: 'login',
-                loader: findUser(),
                 element: <Login/>,
-        }
+            }, {
+                path: 'home',
+                element: <Home/>,
+            }
         ]
     }
 ]
@@ -23,9 +25,9 @@ const routes:RouteObject[] = [
 export default routes;
 
 
-function findUser(){
+function findUser() {
     let user = true;
-    if(!user){
+    if (!user) {
         return redirect('/login')
     }
     return null;
