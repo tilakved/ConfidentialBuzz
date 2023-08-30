@@ -1,12 +1,39 @@
-.bg-chat{
+.bg-chat {
   background-image: url("../../../assets/svgs/undraw_real_time_collaboration_c62i.svg");
   background-size: contain;
 }
-.glass-box{
+
+.glass-box {
   background: rgba(0, 0, 0, 0.1);
   padding: 20px;
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
-  border: 4px solid rgba(255, 255, 255, 0.18);
+  border: 4px solid rgb(63 61 86 / 75%);
   border-radius: 40px;
   z-index: 1;
+}
+
+@keyframes skew-x-shaking {
+  0% {
+    transform: skewX(-15deg);
+  }
+  5% {
+    transform: skewX(15deg);
+  }
+  10% {
+    transform: skewX(-15deg);
+  }
+  15% {
+    transform: skewX(15deg);
+  }
+  20% {
+    transform: skewX(0deg);
+  }
+  100% {
+    transform: skewX(0deg);
+  }
+}
+
+.horizontal-shake {
+  animation: skew-x-shaking 0.35s infinite;
 }

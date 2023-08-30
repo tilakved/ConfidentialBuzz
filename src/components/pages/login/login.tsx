@@ -2,13 +2,14 @@ import './login.scss'
 import {AnimatePresence, motion} from 'framer-motion';
 import Logo from '../../../../public/vite.svg';
 import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
-import {useState} from "react";
+import {useRef, useState} from "react";
+import {failAlert, successAlert} from "../../../swal/swal.ts"
 
 const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
-
 function Login() {
+    const emailRef = useRef();
     const [showEmail, setShowEmail] = useState(true);
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
@@ -40,14 +41,25 @@ function Login() {
     function handleContinue() {
         let currentEmailState = structuredClone(showEmail);
         let isEmailValid = validateEmail();
-
+        if (!isEmailValid) {
+            emailRef.current.classList.add("horizontal-shake")
+            setTimeout(() => {
+                emailRef.current.classList.remove('horizontal-shake')
+            }, 500)
+        }
         if (currentEmailState && isEmailValid) {
             setShowEmail(false)
         } else {
             let isPasswordValid = validatePassword();
-            if (!currentEmailState && isPasswordValid) {
-                console.log('all validated call API here')
+            if (!currentEmailState) {
+                if (isPasswordValid) {
+                    console.log('all validated call API here')
+                    successAlert('Login', 'successfully logged in'); //add to api
+                } else {
+                    failAlert('error', 'Please follow the format of 1 Capital Letter, 1 number and 1 special character', 5000);
+                }
             }
+
         }
     }
 
@@ -90,7 +102,7 @@ function Login() {
                                     <a className="font-medium text-2xl">Confidential Buzz</a>
                                 </div>
                             </div>
-                            <div className="flex flex-1 flex-col justify-center max-w-md ">
+                            <div className="flex flex-1 flex-col justify-center max-w-screen-md">
                                 <div className="glass-box">
                                     <div className="flex flex-col">
                                         {showEmail &&
@@ -129,22 +141,24 @@ function Login() {
 
 
                                     </div>
-                                    <div className="flex flex-col max-w-md mt-5 relative">
+                                    <div className="flex flex-col max-w-screen-md mt-5 relative">
                                         <AnimatePresence>
                                             {showEmail &&
-                                                <motion.input type="text" placeholder="Email" onChange={() => {
-                                                    getValueEmail(event)
-                                                }}
+                                                <motion.input type="text" placeholder="Email" value={emailValue}
+                                                              onChange={() => {
+                                                                  getValueEmail(event)
+                                                              }} ref={emailRef}
                                                               initial={{x: '100%', opacity: 1, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               exit={{x: '100%', opacity: "0", position: "absolute"}}
-                                                              className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                                              className='flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal'/>
                                             }
                                         </AnimatePresence>
                                         <AnimatePresence>
                                             {!showEmail &&
 
-                                                <motion.input type="password" placeholder="Password" onChange={() => {
+                                                <motion.input type="password" placeholder="Password"
+                                                              value={passwordValue} onChange={() => {
                                                     getValuePassword(event)
                                                 }}
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
