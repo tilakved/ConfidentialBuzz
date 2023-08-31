@@ -3,7 +3,9 @@ import {
     sendEmailVerification,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    updateProfile
+    updateProfile,
+    signInWithPopup,
+    GoogleAuthProvider
 } from 'firebase/auth';
 import {auth} from '../firebase.config.ts';
 
@@ -34,6 +36,19 @@ export async function sendVerifyEmailAuth() {
     await sendEmailVerification(auth.currentUser).then((res) => {
         console.log('MAIL SENT', res);
         auth.signOut();
+    });
+}
+
+export async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+
+    await signInWithPopup(auth, provider).then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        const user = result.user;
+        console.log(token,user)
+    }).catch((error) => {
+        throw error;
     });
 }
 

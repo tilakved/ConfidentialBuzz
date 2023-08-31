@@ -5,7 +5,13 @@ import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import {useRef, useState} from "react";
 import {failAlert, successAlert} from "../../../swal/swal.ts"
 import {useNavigate} from "react-router-dom";
-import {isUserExist, loginWithPassword, sendVerifyEmailAuth, signUpWithPassword} from "../../../API/firebase/auth.ts";
+import {
+    isUserExist,
+    loginWithPassword,
+    sendVerifyEmailAuth,
+    signInWithGoogle,
+    signUpWithPassword
+} from "../../../API/firebase/auth.ts";
 
 const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
@@ -106,6 +112,15 @@ function Login() {
     function getValueName(e: any) {
         let currentNameValue = e.target.value
         setNameValue(currentNameValue)
+    }
+
+    async function handleSignInWithGoogle() {
+        await signInWithGoogle().then((res) => {
+            navigate('/home');
+            successAlert('Login', 'successfully logged in');
+        }).catch((err) => {
+            failAlert("Login Failed", err.message)
+        })
     }
 
     return (
@@ -242,8 +257,8 @@ function Login() {
                                             <span className="px-4 font-bold">Or</span>
                                             <span className="w-full border border-black"></span>
                                         </div>
-                                        <button
-                                            className="bg-black text-white flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
+                                        <button onClick={() => handleSignInWithGoogle()}
+                                                className="bg-black text-white flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
                                           <span className="absolute left-4">
                                               <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                    xmlns="http://www.w3.org/2000/svg">
