@@ -5,64 +5,91 @@ import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import {useRef, useState} from "react";
 import {failAlert, successAlert} from "../../../swal/swal.ts"
 import {useNavigate} from "react-router-dom";
+import {isUserExist, loginWithPassword, sendVerifyEmailAuth, signUpWithPassword} from "../../../API/firebase/auth.ts";
 
 const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
 function Login() {
     const emailRef = useRef();
-    const [showEmail, setShowEmail] = useState(true);
+    // modes - email | name | password
+    const [showMode, setShowMode] = useState('email');
+    // values
     const [emailValue, setEmailValue] = useState('');
     const [passwordValue, setPasswordValue] = useState('');
+    const [nameValue, setNameValue] = useState('');
     const navigate = useNavigate();
 
     function handleBack() {
-        setShowEmail(true)
+        setShowMode('email')
     }
 
     function validateEmail() {
-        let currentEmailState = structuredClone(emailValue);
-        if (validEmail.test(currentEmailState)) {
-            return true;
-        } else {
-            console.log('wrong email', validEmail.test(currentEmailState))
-            return false;
-        }
+        let currentShowMode = structuredClone(emailValue);
+        return validEmail.test(currentShowMode);
     }
 
     function validatePassword() {
         let currentPasswordState = structuredClone(passwordValue);
-        if (validPassword.test(currentPasswordState)) {
-            return true;
-        } else {
-            console.log('wrong password', validPassword.test(currentPasswordState))
-            return false;
-        }
+        return validPassword.test(currentPasswordState);
     }
 
-    function handleContinue() {
-        let currentEmailState = structuredClone(showEmail);
+    async function handleContinue() {
+        let currentShowMode = structuredClone(showMode);
         let isEmailValid = validateEmail();
         if (!isEmailValid) {
             emailRef.current.classList.add("horizontal-shake")
-            setTimeout(() => {
-                emailRef.current.classList.remove('horizontal-shake')
-            }, 500)
         }
-        if (currentEmailState && isEmailValid) {
-            setShowEmail(false)
-        } else {
-            let isPasswordValid = validatePassword();
-            if (!currentEmailState) {
-                if (isPasswordValid) {
-                    console.log('all validated call API here')
-                    navigate('/home');
-                    successAlert('Login', 'successfully logged in'); //add to api
-                } else {
-                    failAlert('error', 'Please follow the format of minimum 8 characters with 1 Capital Letter, 1 number and 1 special character', 5000);
-                }
+        if (currentShowMode == 'email' && isEmailValid) {
+            if (await isUserExist(emailValue)) {
+                setShowMode('password')
+            } else {
+                setShowMode('name')
             }
+        } else if (currentShowMode == 'password') {
+            let isPasswordValid = validatePassword();
+            if (isPasswordValid) {
+                await loginWithPassword(emailValue, passwordValue).then(async (res) => {
+                    if (!res.emailVerified) {
+                        let resend = confirm("Verify your Email to Login. You want to resend verification email? Click Ok or cancel otherwise.")
+                        if (resend) {
+                            await sendVerifyEmailAuth();
+                            successAlert('Email Sent', "Verification mail sent successfully.")
+                        }
+                        return
+                    }
+                    navigate('/home');
+                    successAlert('Login', 'successfully logged in');
+                }).catch((err) => {
+                    failAlert("Login Failed", err.message)
+                })
 
+            } else {
+                failAlert('Error', 'Please follow the format of minimum 8 characters with 1 Capital Letter, 1 number and 1 special character', 5000);
+            }
+        } else if (currentShowMode == 'name') {
+            let currentNameState = structuredClone(nameValue);
+            let isNameValid = currentNameState.length > 0;
+            if (isNameValid) {
+                let isPasswordValid = validatePassword();
+                if (isPasswordValid) {
+                    await signUpWithPassword(emailValue, passwordValue, nameValue).then(async (res) => {
+                        console.log(res)
+                        await sendVerifyEmailAuth();
+                        successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.')
+                        setEmailValue('')
+                        setPasswordValue('')
+                        setNameValue('')
+                        setShowMode('email')
+                    }).catch((err) => {
+                        failAlert("Account is not created", err.message)
+                    })
+                } else {
+                    failAlert('Error', 'Please follow the format of minimum 8 characters with 1 Capital Letter, 1 number and 1 special character', 5000);
+                }
+            } else {
+                failAlert('Error', 'Name is required field!');
+            }
         }
     }
 
@@ -74,6 +101,11 @@ function Login() {
     function getValuePassword(e: any) {
         let currentPasswordValue = e.target.value
         setPasswordValue(currentPasswordValue)
+    }
+
+    function getValueName(e: any) {
+        let currentNameValue = e.target.value
+        setNameValue(currentNameValue)
     }
 
     return (
@@ -95,8 +127,8 @@ function Login() {
                             </div>
                             <p className="font-medium"></p>
                         </div>
-                        <div className="flex flex-1 flex-col items-center justify-center px-10 relative bg-chat">
-                            <div className="flex lg:hidden justify-between items-center w-full py-4">
+                        <div className="flex flex-1 flex-col items-center justify-center relative bg-chat">
+                            <div className="flex lg:hidden justify-between items-center w-full py-4 px-10 bg-[#ffe85c]">
                                 <div className="flex items-center justify-start content-center space-x-3">
                             <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
@@ -104,21 +136,20 @@ function Login() {
                                     <a className="font-medium text-2xl">Confidential Buzz</a>
                                 </div>
                             </div>
-                            <div className="flex flex-1 flex-col justify-center max-w-screen-md">
+                            <div className="flex flex-1 flex-col justify-center max-w-screen-md px-10">
                                 <div className="glass-box">
                                     <div className="flex flex-col">
-                                        {showEmail &&
+                                        {showMode == 'email' &&
                                             <>
                                                 <div>
                                                     <h2 className="text-3xl md:text-4xl font-bold">Sign in to
                                                         account</h2>
-                                                    <p className="text-md md:text-xl">Sign up or log in to place the
-                                                        order, no password
-                                                        require!</p>
+                                                    <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                        chat with others!</p>
                                                 </div>
                                             </>
                                         }
-                                        {!showEmail &&
+                                        {showMode == 'password' &&
                                             <div>
 
                                                 <div className="inline-block">
@@ -134,35 +165,71 @@ function Login() {
                                                         alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
                                                 </div>
                                                 <h2 className="text-3xl md:text-4xl font-bold">Welcome back !</h2>
-                                                <p className="text-md md:text-xl">Sign up or log in to place the order,
-                                                    no password
-                                                    require!</p>
+                                                <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                    chat with others!</p>
+
+                                            </div>
+                                        }
+                                        {showMode == 'name' &&
+                                            <div>
+
+                                                <div className="inline-block">
+                                                    <motion.span whileHover={{scale: 1.05}}
+                                                                 transition={{
+                                                                     type: "spring",
+                                                                     stiffness: 400,
+                                                                     damping: 10
+                                                                 }}
+                                                                 className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer"
+                                                                 onClick={() => handleBack()}><span
+                                                        className="rounded-full w-6 h-6 flex items-center justify-start content-center"><i><img
+                                                        alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
+                                                </div>
+                                                <h2 className="text-3xl md:text-4xl font-bold">Sign Up Now !</h2>
+                                                <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                    chat with others!</p>
 
                                             </div>
                                         }
                                     </div>
-                                    <div className="flex flex-col max-w-screen-md mt-5 relative">
+                                    <div className="flex flex-col max-w-screen-md relative">
                                         <AnimatePresence>
-                                            {showEmail &&
+                                            {showMode == 'email' &&
                                                 <motion.input type="text" placeholder="Email" value={emailValue}
+                                                              autoComplete="off"
                                                               onChange={() => {
                                                                   getValueEmail(event)
                                                               }} ref={emailRef}
+                                                              onAnimationEnd={(e) => (e.target as HTMLInputElement).classList.remove('horizontal-shake')}
                                                               initial={{x: '100%', opacity: 1, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               exit={{x: '100%', opacity: "0", position: "absolute"}}
-                                                              className='flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal'/>
+                                                              transition={{bounce: 0}}
+                                                              className='mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal'/>
                                             }
                                         </AnimatePresence>
                                         <AnimatePresence>
-                                            {!showEmail &&
-                                                <motion.input type="password" placeholder="Password"
-                                                              value={passwordValue} onChange={() => {
-                                                    getValuePassword(event)
-                                                }}
+                                            {showMode == 'name' &&
+                                                <motion.input type="text" placeholder="Full Name" autoComplete="off"
+                                                              value={nameValue} onChange={() => {
+                                                    getValueName(event)
+                                                }} transition={{bounce: 0}}
+
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
-                                                              className=" flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                            }
+                                        </AnimatePresence>
+                                        <AnimatePresence>
+                                            {(showMode == 'password' || showMode == 'name') &&
+                                                <motion.input type="password" placeholder="Password" autoComplete="off"
+                                                              value={passwordValue} onChange={() => {
+                                                    getValuePassword(event)
+                                                }} transition={{bounce: 0}}
+
+                                                              initial={{x: '-100%', opacity: 0, position: 'absolute'}}
+                                                              animate={{x: 0, opacity: 1, position: 'initial'}}
+                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
                                             }
                                         </AnimatePresence>
                                         <button
@@ -172,11 +239,11 @@ function Login() {
                                         </button>
                                         <div className="flex justify-center items-center my-5">
                                             <span className="w-full border border-black"></span>
-                                            <span className="px-4">Or</span>
+                                            <span className="px-4 font-bold">Or</span>
                                             <span className="w-full border border-black"></span>
                                         </div>
                                         <button
-                                            className="flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
+                                            className="bg-black text-white flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
                                           <span className="absolute left-4">
                                               <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                    xmlns="http://www.w3.org/2000/svg">

@@ -1,6 +1,6 @@
 .bg-chat {
-  background-image: url("../../../assets/svgs/undraw_real_time_collaboration_c62i.svg");
-  background-size: contain;
+  //background-image: url("../../../assets/svgs/undraw_real_time_collaboration_c62i.svg");
+  //background-size: 150px;
 }
 
 .glass-box {
@@ -35,5 +35,5 @@
 }
 
 .horizontal-shake {
-  animation: skew-x-shaking 0.35s infinite;
+  animation: skew-x-shaking 0.35s 1;
 }
