@@ -2,12 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  * {
+    @apply text-dark dark:text-light
+  }
+}
+
+body {
+  @apply bg-light dark:bg-dark text-dark dark:text-light transition-colors duration-300
+}
+
 @font-face {
   font-family: 'Black Ops One';
   src: url('assets/fonts/BlackOpsOne-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -16,7 +27,7 @@
   background-color: #f7f7f7;
 }
 
-body,h1,h2,h3,h4,h5,h6 {
+body, h1, h2, h3, h4, h5, h6 {
   margin: 0;
   padding: 0;
 }

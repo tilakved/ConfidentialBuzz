@@ -129,7 +129,7 @@ function Login() {
                 <div className="flex min-h-screen overflow-hidden">
                     <div className="flex flex-row w-full">
                         <div
-                            className='hidden lg:flex flex-col justify-between bg-[#ffe85c] lg:p-8 xl:p-12 lg:max-w-sm xl:max-w-lg'>
+                            className='hidden lg:flex flex-col justify-between bg-light dark:bg-dark lg:p-8 xl:p-12 lg:max-w-sm xl:max-w-lg'>
                             <div className="flex items-center justify-start content-center space-x-3">
                             <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
@@ -143,7 +143,8 @@ function Login() {
                             <p className="font-medium"></p>
                         </div>
                         <div className="flex flex-1 flex-col items-center justify-center relative bg-chat">
-                            <div className="flex lg:hidden justify-between items-center w-full py-4 px-10 bg-[#ffe85c]">
+                            <div
+                                className="flex lg:hidden justify-between items-center w-full py-4 px-10 bg-light dark:bg-dark">
                                 <div className="flex items-center justify-start content-center space-x-3">
                             <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
@@ -157,37 +158,35 @@ function Login() {
                                         {showMode == 'email' &&
                                             <>
                                                 <div>
-                                                    <h2 className="text-3xl md:text-4xl font-bold">Sign in to
+                                                    <h2 className="text-3xl md:text-4xl font-bold text-dark">Sign
+                                                        in to
                                                         account</h2>
-                                                    <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                    <p className="text-md md:text-xl text-dark">Sign up or log in
+                                                        to place to chit
                                                         chat with others!</p>
                                                 </div>
                                             </>
                                         }
                                         {showMode == 'password' &&
                                             <div>
-
                                                 <div className="inline-block">
-                                                    <motion.span whileHover={{scale: 1.05}}
-                                                                 transition={{
-                                                                     type: "spring",
-                                                                     stiffness: 400,
-                                                                     damping: 10
-                                                                 }}
-                                                                 className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer"
-                                                                 onClick={() => handleBack()}><span
-                                                        className="rounded-full w-6 h-6 flex items-center justify-start content-center"><i><img
-                                                        alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
+                                                    <span
+                                                        className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer text-dark"
+                                                        onClick={() => handleBack()}><span
+                                                        className="rounded-full w-6 h-6 flex items-center justify-start content-center text-dark"><i><img
+                                                        alt='' src={Back}/></i></span><h2
+                                                        className="text-dark">Go Back</h2></span>
                                                 </div>
-                                                <h2 className="text-3xl md:text-4xl font-bold">Welcome back !</h2>
-                                                <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                <h2 className="text-3xl md:text-4xl font-bold text-dark">Welcome
+                                                    back !</h2>
+                                                <p className="text-md md:text-xl text-dark">Sign up or log in to
+                                                    place to chit
                                                     chat with others!</p>
 
                                             </div>
                                         }
                                         {showMode == 'name' &&
                                             <div>
-
                                                 <div className="inline-block">
                                                     <motion.span whileHover={{scale: 1.05}}
                                                                  transition={{
@@ -198,10 +197,13 @@ function Login() {
                                                                  className="text-l md:text-xl font-bold flex flex-row gap-1 items-center cursor-pointer"
                                                                  onClick={() => handleBack()}><span
                                                         className="rounded-full w-6 h-6 flex items-center justify-start content-center"><i><img
-                                                        alt='' src={Back}/></i></span><h2>Go Back</h2></motion.span>
+                                                        alt='' src={Back}/></i></span><h2 className="text-dark">Go
+                                                        Back</h2></motion.span>
                                                 </div>
-                                                <h2 className="text-3xl md:text-4xl font-bold">Sign Up Now !</h2>
-                                                <p className="text-md md:text-xl">Sign up or log in to place to chit
+                                                <h2 className="text-3xl md:text-4xl font-bold text-dark">Sign Up
+                                                    Now !</h2>
+                                                <p className="text-md md:text-xl text-dark">Sign up or log in to
+                                                    place to chit
                                                     chat with others!</p>
 
                                             </div>
@@ -220,7 +222,7 @@ function Login() {
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
                                                               exit={{x: '100%', opacity: "0", position: "absolute"}}
                                                               transition={{bounce: 0}}
-                                                              className='mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal'/>
+                                                              className='mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal text-dark'/>
                                             }
                                         </AnimatePresence>
                                         <AnimatePresence>
@@ -232,7 +234,7 @@ function Login() {
 
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
-                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal text-dark"/>
                                             }
                                         </AnimatePresence>
                                         <AnimatePresence>
@@ -244,21 +246,21 @@ function Login() {
 
                                                               initial={{x: '-100%', opacity: 0, position: 'absolute'}}
                                                               animate={{x: 0, opacity: 1, position: 'initial'}}
-                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal"/>
+                                                              className="mt-5 flex px-3 py-2 md:px-4 md:py-3 border-2 border-black rounded-lg font-medium placeholder:font-normal text-dark"/>
                                             }
                                         </AnimatePresence>
                                         <button
-                                            className="flex mt-5 items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black bg-black text-white"
+                                            className="flex mt-5 items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black bg-black relative text-white"
                                             onClick={() => handleContinue()}>
                                             Continue
                                         </button>
                                         <div className="flex justify-center items-center my-5">
                                             <span className="w-full border border-black"></span>
-                                            <span className="px-4 font-bold">Or</span>
+                                            <span className="px-4 font-bold text-dark">Or</span>
                                             <span className="w-full border border-black"></span>
                                         </div>
                                         <button onClick={() => handleSignInWithGoogle()}
-                                                className="bg-black text-white flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
+                                                className="bg-black flex items-center justify-center flex-none px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg font-medium border-black relative">
                                           <span className="absolute left-4">
                                               <svg width="24px" height="24px" viewBox="0 0 24 24"
                                                    xmlns="http://www.w3.org/2000/svg">
@@ -272,7 +274,7 @@ function Login() {
                                                     d="M5.27698177,14.2678769 C5.03832634,13.556323 4.90909091,12.7937589 4.90909091,12 C4.90909091,11.2182781 5.03443647,10.4668121 5.26620003,9.76452941 L1.23999023,6.65002441 C0.43658717,8.26043162 0,10.0753848 0,12 C0,13.9195484 0.444780743,15.7301709 1.23746264,17.3349879 L5.27698177,14.2678769 Z"/>
                                           </svg>
                                           </span>
-                                            <span>Sign in with Google</span>
+                                            <span className="text-white">Sign in with Google</span>
                                         </button>
                                     </div>
                                 </div>
