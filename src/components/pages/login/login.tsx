@@ -12,6 +12,7 @@ import {
     signInWithGoogle,
     signUpWithPassword
 } from "../../../API/firebase/auth.ts";
+import {addUser} from "../../../API/firebase/database.ts"
 
 const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
@@ -64,8 +65,12 @@ function Login() {
                         }
                         return
                     }
-                    navigate('/home');
-                    successAlert('Login', 'successfully logged in');
+                    await addUser(res).then(()=>{
+                        navigate('/home');
+                        successAlert('Login', 'successfully logged in');
+                    }).catch((err)=>{
+                        failAlert("Login Failed", err.message)
+                    })
                 }).catch((err) => {
                     failAlert("Login Failed", err.message)
                 })
@@ -80,7 +85,6 @@ function Login() {
                 let isPasswordValid = validatePassword();
                 if (isPasswordValid) {
                     await signUpWithPassword(emailValue, passwordValue, nameValue).then(async (res) => {
-                        console.log(res)
                         await sendVerifyEmailAuth();
                         successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.')
                         setEmailValue('')
@@ -115,9 +119,13 @@ function Login() {
     }
 
     async function handleSignInWithGoogle() {
-        await signInWithGoogle().then((res) => {
-            navigate('/home');
-            successAlert('Login', 'successfully logged in');
+        await signInWithGoogle().then(async(res) => {
+            await addUser(res).then(()=>{
+                navigate('/home');
+                successAlert('Login', 'successfully logged in');
+            }).catch((err)=>{
+                failAlert("Login Failed", err.message)
+            })
         }).catch((err) => {
             failAlert("Login Failed", err.message)
         })

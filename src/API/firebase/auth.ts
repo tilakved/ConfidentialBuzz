@@ -42,12 +42,7 @@ export async function sendVerifyEmailAuth() {
 export async function signInWithGoogle() {
     const provider = new GoogleAuthProvider();
 
-    await signInWithPopup(auth, provider).then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        const user = result.user;
-        console.log(token,user)
-    }).catch((error) => {
+    return await signInWithPopup(auth, provider).then((result) => result.user).catch((error) => {
         throw error;
     });
 }
