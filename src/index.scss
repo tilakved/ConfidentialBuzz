@@ -13,8 +13,8 @@ body {
 }
 
 @font-face {
-  font-family: 'Black Ops One';
-  src: url('assets/fonts/BlackOpsOne-Regular.ttf') format('truetype');
+  font-family: 'Fira Code';
+  src: url('assets/fonts/Fira_Code/static/FiraCode-Medium.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -31,9 +31,11 @@ body, h1, h2, h3, h4, h5, h6 {
   margin: 0;
   padding: 0;
 }
-hr{
+
+hr {
   @apply border-gray-700
 }
+
 .titleFont {
-  font-family: "Black Ops One";
+  font-family: "Fira Code";
 }

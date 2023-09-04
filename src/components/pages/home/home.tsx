@@ -31,15 +31,15 @@ function Home() {
         navigate('/login')
     }
 
-    function handleOnView(value:keyof  ElementHolder) {
+    function handleOnView(value: keyof ElementHolder) {
         setViewContent(value)
     }
 
     return (
-        <>
+        <div className="overflow-y-hidden">
             <div className="flex">
                 <div
-                    className="bg-white dark:bg-gray-900 flex flex-col h-screen border-r dark:border-gray-700">
+                    className="bg-white dark:bg-gray-900 flex flex-col h-screen border-r dark:border-gray-700 fixed">
                     <div
                         className="flex flex-col items-center h-screen pt-8 bg-white space-y-8 dark:bg-gray-900 dark:border-gray-700">
                         <a>
@@ -68,10 +68,11 @@ function Home() {
                         </a>
                     </div>
                 </div>
-
-                {viewContent in modes && modes[viewContent]}
+                <div className="overflow-y-auto w-full ml-[72px]">
+                    {viewContent in modes && modes[viewContent]}
+                </div>
             </div>
-        </>
+        </div>
     )
 }
 

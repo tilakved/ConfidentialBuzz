@@ -142,10 +142,10 @@ function Login() {
                             <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
                             </span>
-                                <a className="font-medium text-3xl titleFont">Confidential Buzz</a>
+                                <a className="font-medium text-3xl titleFont uppercase">Confidential Buzz</a>
                             </div>
                             <div className='space-y-5'>
-                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug font-extrabold">Elevating the
+                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug titleFont font-extrabold">Elevating the
                                     Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
                             </div>
                             <p className="font-medium"></p>
