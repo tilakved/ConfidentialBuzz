@@ -101,84 +101,100 @@ function Accounts() {
             </div>
             {/*right-sidebar    */}
             <div className="flex-1">
-                {/* top bar */}
-                <div className="w-full flex items-center justify-between p-2 border-b dark:border-gray-700">
-                    <div
-                        className="flex items-center w-full px-5 py-2 transition-colors duration-200 gap-x-2 focus:outline-none">
-                        <div className="relative">
-                            <img className="object-cover w-8 h-8 rounded-full"
-                                 src="https://images.unsplash.com/photo-1608174386344-80898cec6beb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&h=687&q=80"
-                                 alt=""/>
-                            <span
-                                className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
-                        </div>
+                {selectedUser &&
+                    <>
+                        {/* top bar */}
+                        <div className="w-full flex items-center justify-between p-2 border-b dark:border-gray-700">
+                            <div
+                                className="flex items-center w-full px-5 py-2 transition-colors duration-200 gap-x-2 focus:outline-none">
+                                <div className="relative">
+                                    <img className="object-cover w-8 h-8 rounded-full"
+                                         src={selectedUser?.photoURL}
+                                         alt=""/>
+                                    <span
+                                        className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
+                                </div>
 
-                        <div className="text-left rtl:text-right">
-                            <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">Junior
-                                REIS</h1>
+                                <div className="text-left rtl:text-right">
+                                    <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
 
-                            <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
-                        </div>
-                    </div>
-                    <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700">
-                        <BsInfoCircle size={'1.2rem'}/>
-                    </div>
-                </div>
-            </div>
-            {modalShow &&
-                <div className="modal overlay h-screen w-screen">
-                    <div
-                        className="modal container flex justify-center items-center px-15 py-10  dark:bg-gray-800 w-full">
-                        <div
-                            className="dark:bg-gray-800 px-15 py-1 flex flex-col justify-center items-center w-1/2">
-                            <h1 className="text-3xl font-semibold leading-10 text-center text-gray-800 dark:text-white">Start
-                                Conversation </h1>
-                            <p className="m-3">Add users by create conversation</p>
-                            <div className="m-3 w-full">
-                                <input placeholder="Search here .." className="px-3 py-2 rounded-xl w-full text-dark"
-                                       value={searchInput} onChange={(event) => {
-                                    setsearchInput(event.target.value)
-                                }}/>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
+                                </div>
                             </div>
-                            <div className="py-2 w-full h-64 overflow-y-auto">
-                                {searchUsersList?.map((users: User, index) => {
-                                    return (
-                                        <div onClick={() => createConvo(users)}
-                                             key={index}
-                                             className={`visibleArrow flex items-center w-full py-2 transition-colors duration-200 hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none cursor-pointer gap-2 px-2 rounded-xl`}>
-                                            <div className="cursor-pointer flex gap-2 items-center w-full">
-                                                <img className="object-cover w-8 h-8 rounded-full"
-                                                     src={users.photoURL}
-                                                     alt=""/>
+                            <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700">
+                                <BsInfoCircle size={'1.2rem'}/>
+                            </div>
+                        </div>
 
-                                                <div className="text-left rtl:text-right">
-                                                    <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{users.displayName}</h1>
+                        <div>
+
+                        </div>
+                    </>
+                }{!selectedUser &&
+                <div
+                    className="w-full flex items-center justify-between p-2 border-b dark:border-gray-700 h-full noDataFound"></div>
+            }
+            </div>
+            {/*search popup*/}
+            <>
+                {modalShow &&
+                    <div className="modal overlay h-screen w-screen">
+                        <div
+                            className="modal container flex justify-center items-center px-15 py-10  dark:bg-gray-800 w-full">
+                            <div
+                                className="dark:bg-gray-800 px-15 py-1 flex flex-col justify-center items-center w-1/2">
+                                <h1 className="text-3xl font-semibold leading-10 text-center text-gray-800 dark:text-white">Start
+                                    Conversation </h1>
+                                <p className="m-3">Add users by create conversation</p>
+                                <div className="m-3 w-full">
+                                    <input placeholder="Search here .."
+                                           className="px-3 py-2 rounded-xl w-full text-dark"
+                                           value={searchInput} onChange={(event) => {
+                                        setsearchInput(event.target.value)
+                                    }}/>
+                                </div>
+                                <div className="py-2 w-full h-64 overflow-y-auto">
+                                    {searchUsersList?.map((users: User, index) => {
+                                        return (
+                                            <div onClick={() => createConvo(users)}
+                                                 key={index}
+                                                 className={`visibleArrow flex items-center w-full py-2 transition-colors duration-200 hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none cursor-pointer gap-2 px-2 rounded-xl`}>
+                                                <div className="cursor-pointer flex gap-2 items-center w-full">
+                                                    <img className="object-cover w-8 h-8 rounded-full"
+                                                         src={users.photoURL}
+                                                         alt=""/>
+
+                                                    <div className="text-left rtl:text-right">
+                                                        <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{users.displayName}</h1>
+                                                    </div>
+                                                </div>
+                                                <div className="hidden">
+                                                    <BiRightArrowCircle size={"1.5rem"}/>
                                                 </div>
                                             </div>
-                                            <div className="hidden">
-                                                <BiRightArrowCircle size={"1.5rem"}/>
-                                            </div>
-                                        </div>
-                                    )
-                                })
+                                        )
+                                    })
 
-                                }
+                                    }
+                                </div>
+                                <div className="mt-12 md:mt-14 w-full flex justify-center">
+                                    <button
+                                        className="dark:text-white dark:border-white w-full sm:w-auto border border-gray-800 text-base font-medium text-gray-800 py-3 px-4 focus:outline-none hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700">
+                                        add group / join group
+                                    </button>
+                                </div>
                             </div>
-                            <div className="mt-12 md:mt-14 w-full flex justify-center">
-                                <button
-                                    className="dark:text-white dark:border-white w-full sm:w-auto border border-gray-800 text-base font-medium text-gray-800 py-3 px-4 focus:outline-none hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700">
-                                    add group / join group
-                                </button>
+                            <div className="crossButton p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700"
+                                 onClick={() => {
+                                     setModalShow(false)
+                                 }}>
+                                <ImCross size={"1rem"}/>
                             </div>
-                        </div>
-                        <div className="crossButton p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700" onClick={() => {
-                            setModalShow(false)
-                        }}>
-                            <ImCross size={"1rem"}/>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </>
+
         </div>
     )
 }

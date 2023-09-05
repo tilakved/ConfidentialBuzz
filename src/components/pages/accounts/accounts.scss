@@ -5,11 +5,19 @@
   transform: translate(-50%, -50%);
 }
 
-.visibleArrow:hover{
+.visibleArrow:hover {
   @apply [&>*:last-child]:block
 }
-.crossButton{
+
+.crossButton {
   position: absolute;
   right: 2%;
   top: 6%;
+}
+
+.noDataFound {
+  background-image: url("../../../assets/svgs/undraw_before_dawn_re_hp4m.svg");
+  background-repeat: no-repeat;
+  background-size: 700px;
+  background-position: center;
 }
