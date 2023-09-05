@@ -10,7 +10,8 @@ import {
 import {useEffect, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
 import {BiRightArrowCircle} from "react-icons/bi";
-import {ImCross} from "react-icons/im";
+import {ImAttachment, ImCross} from "react-icons/im";
+import {IoMdSend} from "react-icons/io";
 
 
 function Accounts() {
@@ -24,10 +25,10 @@ function Accounts() {
         const conversations = res.map(i => (
             {...i, users: i.users.filter(u => u !== auth.currentUser?.uid ?? '')}
         ));
-        let users: any[] = [];
+        let users: ConversationUser[] = [];
         await new Promise<void>(async (resolve) => {
             for (let it of conversations) {
-                await getUserDetails(it.users[0]).then(i => users.push(i));
+                await getUserDetails(it.users[0]).then(i => users.push({...i, createdAt: it.createdAt, lastMessage: it.lastMessage, conversationId: it.conversationId}));
             }
             resolve()
             setConversationList(users)
@@ -39,6 +40,7 @@ function Accounts() {
             console.error(err)
         })
     }, []);
+
     useEffect(() => {
         if (!modalShow) return;
         getAllUsersList(searchInput).then((usersList) => {
@@ -88,7 +90,7 @@ function Accounts() {
 
                                     <div className="text-left rtl:text-right">
                                         <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{convo.displayName}</h1>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">last message</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">{convo.lastMessage}</p>
                                     </div>
                                 </button>
                             )
@@ -100,7 +102,7 @@ function Accounts() {
                 </div>
             </div>
             {/*right-sidebar    */}
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col">
                 {selectedUser &&
                     <>
                         {/* top bar */}
@@ -117,7 +119,6 @@ function Accounts() {
 
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
-
                                     <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
                                 </div>
                             </div>
@@ -125,9 +126,19 @@ function Accounts() {
                                 <BsInfoCircle size={'1.2rem'}/>
                             </div>
                         </div>
-
-                        <div>
-
+                        <div className="h-full">
+                            {/*all chats here*/}
+                        </div>
+                        {/*bottom bar*/}
+                        <div className="p-4 border-t border-gray-700">
+                            <div className="w-full flex gap-2">
+                                <button className="dark:bg-gray-800 p-2 rounded text-white"><ImAttachment
+                                    size={'1.7rem'}/></button>
+                                <input placeholder="Write message here..."
+                                       className="p-2 rounded text-white w-full outline-none dark:bg-gray-800"/>
+                                <button className="dark:bg-gray-800 p-2 rounded text-white"><IoMdSend size={'1.7rem'}/>
+                                </button>
+                            </div>
                         </div>
                     </>
                 }{!selectedUser &&
@@ -148,7 +159,7 @@ function Accounts() {
                                 <p className="m-3">Add users by create conversation</p>
                                 <div className="m-3 w-full">
                                     <input placeholder="Search here .."
-                                           className="px-3 py-2 rounded-xl w-full text-dark"
+                                           className="px-3 py-2 text-white rounded-xl w-full outline-none dark:bg-dark"
                                            value={searchInput} onChange={(event) => {
                                         setsearchInput(event.target.value)
                                     }}/>
@@ -180,7 +191,7 @@ function Accounts() {
                                 <div className="mt-12 md:mt-14 w-full flex justify-center">
                                     <button
                                         className="dark:text-white dark:border-white w-full sm:w-auto border border-gray-800 text-base font-medium text-gray-800 py-3 px-4 focus:outline-none hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700">
-                                        add group / join group
+                                        Add group / Join group
                                     </button>
                                 </div>
                             </div>
