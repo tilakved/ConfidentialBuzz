@@ -8,3 +8,8 @@
 .visibleArrow:hover{
   @apply [&>*:last-child]:block
 }
+.crossButton{
+  position: absolute;
+  right: 2%;
+  top: 6%;
+}

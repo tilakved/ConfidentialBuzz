@@ -24,7 +24,8 @@ export async function loginWithPassword(email: string, password: string) {
 
 export async function signUpWithPassword(email: string, password: string, name: string) {
     return await createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
-        await updateProfile(userCredential.user, {displayName: name})
+        await updateProfile(userCredential.user, {displayName: name,photoURL: 'https://api.dicebear.com/7.x/croodles/svg?seed='+name })
+
         return userCredential.user;
     }).catch((error) => {
         throw error;

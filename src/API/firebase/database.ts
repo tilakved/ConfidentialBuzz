@@ -1,4 +1,4 @@
-import {addDoc, collection, doc, getDoc, getDocs, query, setDoc, where} from "firebase/firestore";
+import {addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, where} from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
 
 export interface User {
@@ -59,8 +59,15 @@ export async function createConversation(receiverId: string) {
 export async function getConversationList(): Promise<Conversation[]> {
     if (!auth.currentUser) throw new Error("User Not Found");
     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
-    const conversations = await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
-    return conversations;
+    return await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
+}
+
+export async function getConversationListContinuous(listHandler:Function): Promise<void> {
+    if (!auth.currentUser) throw new Error("User Not Found");
+    const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
+    onSnapshot(userQuery, (snapshot) => {
+        listHandler(snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
+    });
 }
 
 export async function getAllUsersList(searchString: string): Promise<User[]> {

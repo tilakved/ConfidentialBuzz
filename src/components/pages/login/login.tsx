@@ -18,7 +18,7 @@ const validEmail = new RegExp(/^[a-zA-Z0-9.]+@(?:[a-zA-Z0-9]+\.)+[A-Za-z]+$/);
 const validPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
 function Login() {
-    const emailRef = useRef();
+    const emailRef = useRef(null);
     // modes - email | name | password
     const [showMode, setShowMode] = useState('email');
     // values
@@ -44,8 +44,9 @@ function Login() {
     async function handleContinue() {
         let currentShowMode = structuredClone(showMode);
         let isEmailValid = validateEmail();
+        if(!emailRef.current ) return;
         if (!isEmailValid) {
-            emailRef.current.classList.add("horizontal-shake")
+            (emailRef.current as HTMLInputElement).classList.add("horizontal-shake")
         }
         if (currentShowMode == 'email' && isEmailValid) {
             if (await isUserExist(emailValue)) {
@@ -61,7 +62,7 @@ function Login() {
                         let resend = confirm("Verify your Email to Login. You want to resend verification email? Click Ok or cancel otherwise.")
                         if (resend) {
                             await sendVerifyEmailAuth();
-                            successAlert('Email Sent', "Verification mail sent successfully.")
+                            successAlert('Email Sent', "Verification mail sent successfully.",5000)
                         }
                         return
                     }
@@ -84,9 +85,9 @@ function Login() {
             if (isNameValid) {
                 let isPasswordValid = validatePassword();
                 if (isPasswordValid) {
-                    await signUpWithPassword(emailValue, passwordValue, nameValue).then(async (res) => {
+                    await signUpWithPassword(emailValue, passwordValue, nameValue).then(async () => {
                         await sendVerifyEmailAuth();
-                        successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.')
+                        successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.',5000)
                         setEmailValue('')
                         setPasswordValue('')
                         setNameValue('')

@@ -4,38 +4,41 @@ import {
     Conversation,
     ConversationUser, createConversation,
     getAllUsersList,
-    getConversationList,
+    getConversationListContinuous,
     getUserDetails, User
 } from "../../../API/firebase/database.ts";
 import {useEffect, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
 import {BiRightArrowCircle} from "react-icons/bi";
+import {ImCross} from "react-icons/im";
 
 
 function Accounts() {
     const [searchUsersList, setSearchUsersList] = useState<User[] | null>(null);
-    const [conversationList, setConversationList] = useState<ConversationUser[] | null>(null);
-    const [selectedUser, setSelectedUser] = useState();
+    const [conversationList, setConversationList] = useState<ConversationUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [modalShow, setModalShow] = useState(false);
     const [searchInput, setsearchInput] = useState('');
 
+    const listHandler = async (res: Conversation[]) => {
+        const conversations = res.map(i => (
+            {...i, users: i.users.filter(u => u !== auth.currentUser?.uid ?? '')}
+        ));
+        let users: any[] = [];
+        await new Promise<void>(async (resolve) => {
+            for (let it of conversations) {
+                await getUserDetails(it.users[0]).then(i => users.push(i));
+            }
+            resolve()
+            setConversationList(users)
+        })
+    }
+
     useEffect(() => {
-        getConversationList().then(async (res: Conversation[]) => {
-            const conversations = res.map(i => (
-                {...i, users: i.users.filter(u => u !== auth.currentUser?.uid ?? '')}
-            ));
-            let users: any[] = [];
-            await new Promise<void>(async (resolve) => {
-                for (let it of conversations) {
-                    await getUserDetails(it.users[0]).then(i => users.push(i));
-                }
-                resolve()
-                setConversationList(users)
-            })
-        }).catch((err) => {
+        getConversationListContinuous(listHandler).catch((err) => {
             console.error(err)
         })
-    }, [])
+    }, []);
     useEffect(() => {
         if (!modalShow) return;
         getAllUsersList(searchInput).then((usersList) => {
@@ -50,8 +53,9 @@ function Accounts() {
     }
 
     function createConvo(user: User) {
-        createConversation(user.uid).then((res) => {
-            console.log(res)
+        createConversation(user.uid).then(() => {
+            setSelectedUser(user)
+            setModalShow(false)
         }).catch((err) => {
             console.error(err)
         })
@@ -73,11 +77,11 @@ function Accounts() {
                     <hr/>
                     <div className="mt-2 space-y-1">
                         {/*${selectedUser.id == arr.id ? `bg-gray-100 dark:bg-gray-800 ` : ''}*/}
-                        {conversationList?.map((convo: any, index: number) => {
+                        {conversationList.map((convo: any, index: number) => {
                             return (
                                 <button onClick={() => selectUser(convo)}
                                         key={index}
-                                        className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${selectedUser?.uid === convo.id ? `bg-gray-100 dark:bg-gray-800 ` : ''}`}>
+                                        className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${selectedUser && selectedUser.uid === convo.uid ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
                                     <img className="object-cover w-8 h-8 rounded-full"
                                          src={convo.photoURL}
                                          alt=""/>
@@ -122,7 +126,7 @@ function Accounts() {
                 </div>
             </div>
             {modalShow &&
-                <div className="modal overlay h-screen w-screen ">
+                <div className="modal overlay h-screen w-screen">
                     <div
                         className="modal container flex justify-center items-center px-15 py-10  dark:bg-gray-800 w-full">
                         <div
@@ -137,9 +141,10 @@ function Accounts() {
                                 }}/>
                             </div>
                             <div className="py-2 w-full h-64 overflow-y-auto">
-                                {searchUsersList?.map((users: User) => {
+                                {searchUsersList?.map((users: User, index) => {
                                     return (
                                         <div onClick={() => createConvo(users)}
+                                             key={index}
                                              className={`visibleArrow flex items-center w-full py-2 transition-colors duration-200 hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none cursor-pointer gap-2 px-2 rounded-xl`}>
                                             <div className="cursor-pointer flex gap-2 items-center w-full">
                                                 <img className="object-cover w-8 h-8 rounded-full"
@@ -166,9 +171,13 @@ function Accounts() {
                                 </button>
                             </div>
                         </div>
+                        <div className="crossButton p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700" onClick={() => {
+                            setModalShow(false)
+                        }}>
+                            <ImCross size={"1rem"}/>
+                        </div>
                     </div>
                 </div>
-
             }
         </div>
     )
