@@ -5,10 +5,11 @@ import Logo from '../../../../public/vite.svg';
 import {BiLogOut, BiUserCircle} from "react-icons/bi";
 import {MdOutlineGroups2} from "react-icons/md";
 import {FaGear} from "react-icons/fa6";
-import {ReactElement, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import Accounts from "../accounts/accounts.tsx";
 import Profile from "../profile/profile.tsx";
 import Settings from "../settings/settings.tsx";
+import {updateUserOnlineStatus} from "../../../API/firebase/database.ts";
 
 interface ElementHolder {
     accounts: ReactElement;
@@ -19,14 +20,20 @@ interface ElementHolder {
 function Home() {
     const navigate = useNavigate();
     const [viewContent, setViewContent] = useState<keyof ElementHolder>('accounts')
-
     const modes: ElementHolder = {
         accounts: <Accounts/>,
         profile: <Profile/>,
         settings: <Settings/>
     }
 
+    useEffect(() => {
+        updateUserOnlineStatus('active').catch((err) => console.log(err))
+    }, [])
+
     function LogOut() {
+        updateUserOnlineStatus(Date.now()).catch((err) => {
+            console.error(err)
+        })
         auth.signOut();
         navigate('/login')
     }

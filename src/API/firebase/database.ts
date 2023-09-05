@@ -1,4 +1,4 @@
-import {addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, where} from "firebase/firestore";
+import {addDoc,collection,doc,getDoc,getDocs,onSnapshot,query,setDoc,where,updateDoc} from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
 
 export interface User {
@@ -6,8 +6,8 @@ export interface User {
     email: string;
     photoURL: string;
     uid: string;
+    lastOnline: number | "active";
 }
-
 
 export interface Conversation {
     conversationId: string;
@@ -25,7 +25,7 @@ export interface ConversationUser extends User {
 export async function addUser(user: any) {
     const {displayName, email, photoURL, uid} = user;
     const documentRef = doc(database, 'users', uid);
-    return await setDoc(documentRef, {displayName, email, uid, photoURL})
+    return await setDoc(documentRef, {displayName, email, uid, photoURL, lastOnline: "active"})
 }
 
 export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
@@ -36,6 +36,14 @@ export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
     } else {
         throw new Error("User not found")
     }
+}
+
+export async function updateUserOnlineStatus(status: User['lastOnline']) {
+    if (!auth.currentUser) return;
+    const documentRef = doc(database, 'users', auth.currentUser.uid);
+    await updateDoc(documentRef, {
+        lastOnline: status
+    });
 }
 
 export async function createConversation(receiverId: string) {
@@ -55,14 +63,13 @@ export async function createConversation(receiverId: string) {
     return await addDoc(collection(database, 'conversations'), conversation).then(item => ({...conversation, conversationId: item.id} as Conversation));
 }
 
-
 export async function getConversationList(): Promise<Conversation[]> {
     if (!auth.currentUser) throw new Error("User Not Found");
     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
     return await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
 }
 
-export async function getConversationListContinuous(listHandler:Function): Promise<void> {
+export async function getConversationListContinuous(listHandler: Function): Promise<void> {
     if (!auth.currentUser) throw new Error("User Not Found");
     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
     onSnapshot(userQuery, (snapshot) => {

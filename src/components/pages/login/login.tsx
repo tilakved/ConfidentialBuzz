@@ -43,12 +43,14 @@ function Login() {
 
     async function handleContinue() {
         let currentShowMode = structuredClone(showMode);
-        let isEmailValid = validateEmail();
-        if(!emailRef.current ) return;
-        if (!isEmailValid) {
-            (emailRef.current as HTMLInputElement).classList.add("horizontal-shake")
-        }
-        if (currentShowMode == 'email' && isEmailValid) {
+
+        if (currentShowMode == 'email') {
+            if (!emailRef.current) return;
+            let isEmailValid = validateEmail();
+            if (!isEmailValid) {
+                (emailRef.current as HTMLInputElement).classList.add("horizontal-shake");
+                return;
+            }
             if (await isUserExist(emailValue)) {
                 setShowMode('password')
             } else {
@@ -62,14 +64,14 @@ function Login() {
                         let resend = confirm("Verify your Email to Login. You want to resend verification email? Click Ok or cancel otherwise.")
                         if (resend) {
                             await sendVerifyEmailAuth();
-                            successAlert('Email Sent', "Verification mail sent successfully.",5000)
+                            successAlert('Email Sent', "Verification mail sent successfully.", 5000)
                         }
                         return
                     }
-                    await addUser(res).then(()=>{
+                    await addUser(res).then(() => {
                         navigate('/home');
                         successAlert('Login', 'successfully logged in');
-                    }).catch((err)=>{
+                    }).catch((err) => {
                         failAlert("Login Failed", err.message)
                     })
                 }).catch((err) => {
@@ -87,7 +89,7 @@ function Login() {
                 if (isPasswordValid) {
                     await signUpWithPassword(emailValue, passwordValue, nameValue).then(async () => {
                         await sendVerifyEmailAuth();
-                        successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.',5000)
+                        successAlert('Account Created Successfully', 'Verification Email is sent to your email, please verify to continue.', 5000)
                         setEmailValue('')
                         setPasswordValue('')
                         setNameValue('')
@@ -120,11 +122,11 @@ function Login() {
     }
 
     async function handleSignInWithGoogle() {
-        await signInWithGoogle().then(async(res) => {
-            await addUser(res).then(()=>{
+        await signInWithGoogle().then(async (res) => {
+            await addUser(res).then(() => {
                 navigate('/home');
                 successAlert('Login', 'successfully logged in');
-            }).catch((err)=>{
+            }).catch((err) => {
                 failAlert("Login Failed", err.message)
             })
         }).catch((err) => {
@@ -146,8 +148,7 @@ function Login() {
                                 <a className="font-medium text-3xl titleFont uppercase">Confidential Buzz</a>
                             </div>
                             <div className='space-y-5'>
-                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug titleFont font-extrabold">Elevating the
-                                    Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
+                                <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug titleFont font-extrabold">Elevating the Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
                             </div>
                             <p className="font-medium"></p>
                         </div>

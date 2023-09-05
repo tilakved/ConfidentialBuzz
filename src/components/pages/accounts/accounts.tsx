@@ -84,10 +84,15 @@ function Accounts() {
                                 <button onClick={() => selectUser(convo)}
                                         key={index}
                                         className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${selectedUser && selectedUser.uid === convo.uid ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
-                                    <img className="object-cover w-8 h-8 rounded-full"
-                                         src={convo.photoURL}
-                                         alt=""/>
-
+                                    <div className="relative">
+                                        <img className="object-cover w-8 h-8 rounded-full"
+                                             src={convo.photoURL}
+                                             alt=""/>
+                                        {convo?.lastOnline === 'active' &&
+                                            <span
+                                                className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
+                                        }
+                                    </div>
                                     <div className="text-left rtl:text-right">
                                         <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{convo.displayName}</h1>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">{convo.lastMessage}</p>
@@ -113,13 +118,15 @@ function Accounts() {
                                     <img className="object-cover w-8 h-8 rounded-full"
                                          src={selectedUser?.photoURL}
                                          alt=""/>
-                                    <span
-                                        className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
+                                    {selectedUser?.lastOnline === 'active' &&
+                                        <span
+                                            className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
+                                    }
                                 </div>
 
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ?  new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {dateStyle:'short', timeStyle:'short'}) : 'active'} </p>
                                 </div>
                             </div>
                             <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700">
