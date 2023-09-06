@@ -1,9 +1,16 @@
 import "./accounts.scss"
 import {BsInfoCircle, BsSearch} from "react-icons/bs";
 import {
-    Conversation, User, ConversationUser,
-    getAllUsersList, createConversation,
-    getConversationListContinuous, getMultipleUsersContinuous
+    Conversation,
+    User,
+    ConversationUser,
+    getAllUsersList,
+    createConversation,
+    getConversationListContinuous,
+    getMultipleUsersContinuous,
+    createMessage,
+    getMessagesContinuous,
+    Message
 } from "../../../API/firebase/database.ts";
 import {useEffect, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
@@ -14,13 +21,15 @@ import {IoMdSend} from "react-icons/io";
 function Accounts() {
     const [searchUsersList, setSearchUsersList] = useState<User[] | null>(null);
     const [conversationList, setConversationList] = useState<ConversationUser[]>([]);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [messageList, setmessageList] = useState<Message[]>([]);
+    const [selectedUser, setSelectedUser] = useState<ConversationUser | null>(null);
     const [modalShow, setModalShow] = useState(false);
     const [searchInput, setsearchInput] = useState('');
+    const [messageInput, setmessageInput] = useState('');
 
     const listHandler = async (res: Conversation[]) => {
         const conversations = res.map(i => (
-            {...i, users: i.users.filter(u => u !== auth.currentUser?.uid ?? '')}
+            {...i, users: i.users.filter((u: any) => u !== auth.currentUser?.uid ?? '')}
         ));
         getMultipleUsersContinuous(conversations.map(i => i.users[0]), (d: User[]) => {
             let updatedUsers: ConversationUser[] = []
@@ -58,17 +67,32 @@ function Accounts() {
         })
     }, [modalShow, searchInput])
 
+    useEffect(() => {
+        if (!selectedUser) return;
+        getMessagesContinuous(selectedUser.conversationId, (data: Message[]) => {
+            setmessageList(data)
+        })
+    }, [selectedUser])
+
     function selectUser(convo: any) {
         setSelectedUser(convo)
     }
 
     function createConvo(user: User) {
         createConversation(user.uid).then(() => {
-            setSelectedUser(user)
+            let updatedSelectedUser = structuredClone(conversationList.find(i => i.uid === user.uid));
+            if (!updatedSelectedUser) return;
+            setSelectedUser(updatedSelectedUser);
             setModalShow(false)
         }).catch((err) => {
-            console.error(err)
+            console.error(err);
         })
+    }
+
+    function sendMessage() {
+        if (!selectedUser || !messageInput) return;
+        createMessage(selectedUser.conversationId, structuredClone(messageInput));
+        setmessageInput('');
     }
 
     return (
@@ -142,16 +166,40 @@ function Accounts() {
                             </div>
                         </div>
                         <div className="h-full">
-                            {/*all chats here*/}
+                            <div>  {/*messages of same day*/}
+                                {/* day-time */}
+                                <div className="flex w-full items-center gap-2">
+                                    <hr className="border-b border-amber-400 w-full"/>
+                                    today <hr className="w-full border-b border-amber-400"/>
+                                </div>
+                                <div className="messages">
+                                    {/*receiver*/}
+                                    {messageList?.map((mes: Message) => {
+                                        return (
+                                            <div
+                                                className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                                                <div
+                                                    className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    <span
+                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>
+                                                    <span className="p-2">{mes.messageContent}</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
                         </div>
                         {/*bottom bar*/}
                         <div className="p-4 border-t border-gray-700">
                             <div className="w-full flex gap-2">
                                 <button className="dark:bg-gray-800 p-2 rounded text-white"><ImAttachment
                                     size={'1.7rem'}/></button>
-                                <input placeholder="Write message here..."
+                                <input placeholder="Write message here..." value={messageInput}
+                                       onChange={(event) => setmessageInput(event.target.value)}
                                        className="p-2 rounded text-white w-full outline-none dark:bg-gray-800"/>
-                                <button className="dark:bg-gray-800 p-2 rounded text-white"><IoMdSend size={'1.7rem'}/>
+                                <button className="dark:bg-gray-800 p-2 rounded text-white"
+                                        onClick={() => sendMessage()}><IoMdSend size={'1.7rem'}/>
                                 </button>
                             </div>
                         </div>
@@ -220,7 +268,6 @@ function Accounts() {
                     </div>
                 }
             </>
-
         </div>
     )
 }

@@ -1,4 +1,17 @@
-import {addDoc,collection,doc,getDoc,getDocs,onSnapshot,query,setDoc,where,updateDoc,documentId} from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    doc,
+    getDoc,
+    orderBy,
+    getDocs,
+    onSnapshot,
+    query,
+    setDoc,
+    where,
+    updateDoc,
+    documentId
+} from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
 
 export interface User {
@@ -7,6 +20,15 @@ export interface User {
     photoURL: string;
     uid: string;
     lastOnline: number | "active";
+}
+
+export interface Message {
+    conversationId: number;
+    messageContent: string;
+    senderId: string;
+    createdAt: number;
+    messageType: 'text' | 'file';
+    isRead: boolean;
 }
 
 export interface Conversation {
@@ -38,10 +60,10 @@ export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
     }
 }
 
-export function  getMultipleUsersContinuous(uids:string[], userHandler:Function) :void {
+export function getMultipleUsersContinuous(uids: string[], userHandler: Function): void {
     const q = query(collection(database, 'users'), where(documentId(), 'in', uids));
     onSnapshot(q, (snapshot) => {
-        userHandler(snapshot.docs.map(i => ({...i.data(), uid:i.id} as User)));
+        userHandler(snapshot.docs.map(i => ({...i.data(), uid: i.id} as User)));
     })
 }
 
@@ -92,4 +114,33 @@ export async function getAllUsersList(searchString: string): Promise<User[]> {
     usersList = usersList.filter(user => auth.currentUser?.uid !== user.uid);
     usersList = usersList.filter(user => ((user.displayName).toLowerCase()).includes((searchString.trim()).toLowerCase()));
     return usersList as User[]
+}
+
+export function createMessage(conversationId: string, message: string) {
+    if (!auth.currentUser) return;
+    const targetConversation = doc(database, "conversations", conversationId);
+    const targetCollection = collection(targetConversation, 'messages');
+
+    const messageObj = {
+        conversationId,
+        messageContent: message,
+        senderId: auth.currentUser.uid,
+        createdAt: Date.now(),
+        messageType: 'text',
+        isRead: false
+    }
+
+    addDoc(targetCollection, messageObj).catch(err => {
+        throw err
+    })
+
+}
+
+export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
+    const targetConversation = doc(database, "conversations", conversationId);
+    const targetCollection = collection(targetConversation, 'messages');
+    onSnapshot(query(targetCollection, orderBy('createdAt')), (sn) => {
+        messageHandler(sn.docs.map(i => i.data()))
+    })
+
 }
