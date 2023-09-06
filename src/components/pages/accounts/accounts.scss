@@ -21,3 +21,12 @@
   background-size: 700px;
   background-position: center;
 }
+
+.convoList {
+  overflow-y: auto;
+  max-height: calc(100vh - 77px);
+}
+.messList{
+  overflow-y: auto;
+  max-height: calc(100vh - 142px);
+}

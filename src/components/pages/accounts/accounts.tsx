@@ -109,7 +109,7 @@ function Accounts() {
                         </span>
                     </div>
                     <hr/>
-                    <div className="mt-2 space-y-1">
+                    <div className="mt-2 space-y-1 convoList">
                         {/*${selectedUser.id == arr.id ? `bg-gray-100 dark:bg-gray-800 ` : ''}*/}
                         {conversationList.map((convo: any, index: number) => {
                             return (
@@ -165,12 +165,12 @@ function Accounts() {
                                 <BsInfoCircle size={'1.2rem'}/>
                             </div>
                         </div>
-                        <div className="h-full">
+                        <div className="h-full messList">
                             <div>  {/*messages of same day*/}
                                 {/* day-time */}
-                                <div className="flex w-full items-center gap-2">
-                                    <hr className="border-b border-amber-400 w-full"/>
-                                    today <hr className="w-full border-b border-amber-400"/>
+                                <div className="flex w-full items-center gap-2 my-3">
+                                    <hr className="border-b dark:border-gray-700 w-full"/>
+                                    today <hr className="w-full border-b dark:border-gray-700"/>
                                 </div>
                                 <div className="messages">
                                     {/*receiver*/}
@@ -180,9 +180,11 @@ function Accounts() {
                                                 className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                 <div
                                                     className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
-                                                    <span
-                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>
+                                                    {mes.senderId === selectedUser.uid && <span
+                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                     <span className="p-2">{mes.messageContent}</span>
+                                                    {mes.senderId !== selectedUser.uid && <span
+                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                 </div>
                                             </div>
                                         )

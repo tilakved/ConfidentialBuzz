@@ -139,7 +139,7 @@ export function createMessage(conversationId: string, message: string) {
 export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
     const targetConversation = doc(database, "conversations", conversationId);
     const targetCollection = collection(targetConversation, 'messages');
-    onSnapshot(query(targetCollection, orderBy('createdAt')), (sn) => {
+    onSnapshot(query(targetCollection, orderBy('createdAt', "asc")), (sn) => {
         messageHandler(sn.docs.map(i => i.data()))
     })
 
