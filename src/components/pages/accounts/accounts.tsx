@@ -70,9 +70,15 @@ function Accounts() {
     useEffect(() => {
         if (!selectedUser) return;
         getMessagesContinuous(selectedUser.conversationId, (data: Message[]) => {
-            setmessageList(data)
+            setmessageList(data);
         })
     }, [selectedUser])
+
+    useEffect(() => {
+        const ele = document.querySelector('.messList');
+        if(!ele)return;
+        ele.scrollTop = ele.scrollHeight
+    }, [messageList]);
 
     function selectUser(convo: any) {
         setSelectedUser(convo)
@@ -165,7 +171,7 @@ function Accounts() {
                                 <BsInfoCircle size={'1.2rem'}/>
                             </div>
                         </div>
-                        <div className="h-full messList">
+                        <div className="h-full messList scroll-smooth">
                             <div>  {/*messages of same day*/}
                                 {/* day-time */}
                                 <div className="flex w-full items-center gap-2 my-3">
