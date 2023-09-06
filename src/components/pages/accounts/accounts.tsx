@@ -1,18 +1,15 @@
 import "./accounts.scss"
 import {BsInfoCircle, BsSearch} from "react-icons/bs";
 import {
-    Conversation,
-    ConversationUser, createConversation,
-    getAllUsersList,
-    getConversationListContinuous,
-    getUserDetails, User
+    Conversation, User, ConversationUser,
+    getAllUsersList, createConversation,
+    getConversationListContinuous, getMultipleUsersContinuous
 } from "../../../API/firebase/database.ts";
 import {useEffect, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
 import {BiRightArrowCircle} from "react-icons/bi";
 import {ImAttachment, ImCross} from "react-icons/im";
 import {IoMdSend} from "react-icons/io";
-
 
 function Accounts() {
     const [searchUsersList, setSearchUsersList] = useState<User[] | null>(null);
@@ -25,13 +22,17 @@ function Accounts() {
         const conversations = res.map(i => (
             {...i, users: i.users.filter(u => u !== auth.currentUser?.uid ?? '')}
         ));
-        let users: ConversationUser[] = [];
-        await new Promise<void>(async (resolve) => {
-            for (let it of conversations) {
-                await getUserDetails(it.users[0]).then(i => users.push({...i, createdAt: it.createdAt, lastMessage: it.lastMessage, conversationId: it.conversationId}));
+        getMultipleUsersContinuous(conversations.map(i => i.users[0]), (d: User[]) => {
+            let updatedUsers: ConversationUser[] = []
+            for (let index = 0; index < conversations.length; index++) {
+                const {users, ...restConv} = conversations[index];
+                const updatedUser: ConversationUser = {
+                    ...restConv,
+                    ...d[index]
+                }
+                updatedUsers.push(updatedUser);
             }
-            resolve()
-            setConversationList(users)
+            setConversationList(updatedUsers);
         })
     }
 
@@ -40,6 +41,13 @@ function Accounts() {
             console.error(err)
         })
     }, []);
+
+    useEffect(() => {
+        if (!selectedUser) return;
+        let updatedSelectedUser = structuredClone(conversationList.find(i => i.uid === selectedUser.uid));
+        if (!updatedSelectedUser) return;
+        setSelectedUser(updatedSelectedUser);
+    }, [conversationList])
 
     useEffect(() => {
         if (!modalShow) return;
@@ -126,7 +134,7 @@ function Accounts() {
 
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ?  new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {dateStyle:'short', timeStyle:'short'}) : 'active'} </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ? new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {dateStyle: 'short', timeStyle: 'short'}) : 'active'} </p>
                                 </div>
                             </div>
                             <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700">

@@ -1,4 +1,4 @@
-import {addDoc,collection,doc,getDoc,getDocs,onSnapshot,query,setDoc,where,updateDoc} from "firebase/firestore";
+import {addDoc,collection,doc,getDoc,getDocs,onSnapshot,query,setDoc,where,updateDoc,documentId} from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
 
 export interface User {
@@ -36,6 +36,13 @@ export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
     } else {
         throw new Error("User not found")
     }
+}
+
+export function  getMultipleUsersContinuous(uids:string[], userHandler:Function) :void {
+    const q = query(collection(database, 'users'), where(documentId(), 'in', uids));
+    onSnapshot(q, (snapshot) => {
+        userHandler(snapshot.docs.map(i => ({...i.data(), uid:i.id} as User)));
+    })
 }
 
 export async function updateUserOnlineStatus(status: User['lastOnline']) {
