@@ -35,8 +35,8 @@ function Profile() {
                 setProfileUser(editProfileUser)
                 setEditProfileUser(null)
             }else{
-                setEditMode(true)
-                setEditProfileUser(profileUser)
+                setProfileUser(profileUser)
+                setEditProfileUser(null)
             }
         } else {
             setEditMode(true)
