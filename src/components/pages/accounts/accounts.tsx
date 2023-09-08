@@ -71,8 +71,6 @@ function Accounts() {
         if (!selectedUser) return;
         getMessagesContinuous(selectedUser.conversationId, async (data: Message[]) => {
             const groupedMessages = groupMessagesByDate(data);
-            console.log(groupedMessages)
-
             setmessageList(groupedMessages);
         })
     }, [selectedUser])
@@ -122,40 +120,38 @@ function Accounts() {
             {/*left-sidebar*/}
             <div
                 className="h-screen  overflow-y-auto bg-white border-r sm:w-64 w-60 dark:bg-gray-900 dark:border-gray-700">
-                <div>
-                    <div className="flex items-center justify-between">
-                        <h2 className="p-5 text-lg font-medium text-gray-800 dark:text-white">Accounts</h2>
-                        <span className="p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700"
-                              onClick={() => setModalShow(true)}>
+                <div className="flex items-center justify-between">
+                    <h2 className="p-5 text-lg font-medium text-gray-800 dark:text-white">Accounts</h2>
+                    <span className="p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700"
+                          onClick={() => setModalShow(true)}>
                             <BsSearch/>
                         </span>
-                    </div>
-                    <hr/>
-                    <div className="mt-2 space-y-1 convoList">
-                        {/*${selectedUser.id == arr.id ? `bg-gray-100 dark:bg-gray-800 ` : ''}*/}
-                        {conversationList.map((convo: any, index: number) => {
-                            return (
-                                <button onClick={() => selectUser(convo)}
-                                        key={index}
-                                        className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${selectedUser && selectedUser.uid === convo.uid ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
-                                    <div className="relative">
-                                        <img className="object-cover w-8 h-8 rounded-full"
-                                             src={convo.photoURL}
-                                             alt=""/>
-                                        {convo?.lastOnline === 'active' &&
-                                            <span
-                                                className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
-                                        }
-                                    </div>
-                                    <div className="text-left rtl:text-right">
-                                        <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{convo.displayName}</h1>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">{convo.lastMessage}</p>
-                                    </div>
-                                </button>
-                            )
-                        })
-                        }
-                    </div>
+                </div>
+                <hr/>
+                <div className="mt-2 space-y-1 convoList">
+                    {/*${selectedUser.id == arr.id ? `bg-gray-100 dark:bg-gray-800 ` : ''}*/}
+                    {conversationList.map((convo: any, index: number) => {
+                        return (
+                            <button onClick={() => selectUser(convo)}
+                                    key={index}
+                                    className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${selectedUser && selectedUser.uid === convo.uid ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
+                                <div className="relative">
+                                    <img className="object-cover w-8 h-8 rounded-full"
+                                         src={convo.photoURL}
+                                         alt=""/>
+                                    {convo?.lastOnline === 'active' &&
+                                        <span
+                                            className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
+                                    }
+                                </div>
+                                <div className="text-left rtl:text-right">
+                                    <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{convo.displayName}</h1>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{convo.lastMessage}</p>
+                                </div>
+                            </button>
+                        )
+                    })
+                    }
                 </div>
             </div>
             {/*right-sidebar    */}
@@ -193,10 +189,10 @@ function Accounts() {
                                         <hr className="w-full border-b dark:border-gray-700"/>
                                     </div>
                                     <div className="messages">
-                                        {message.map((mes: Message) => {
+                                        {message.map((mes: Message, index: number) => {
                                             return (
-                                                <div
-                                                    className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                                                <div key={index}
+                                                     className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                     <div
                                                         className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
                                                         {mes.senderId === selectedUser.uid && <span
