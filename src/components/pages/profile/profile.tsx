@@ -45,7 +45,6 @@ function Profile() {
     }
 
     function updateData(type: string, event: any) {
-        console.log(type, event.target.value);
         if (type == 'name') {
             if (!editProfileUser) return;
             const x = structuredClone(editProfileUser)
