@@ -21,7 +21,7 @@ import {IoMdSend} from "react-icons/io";
 function Accounts() {
     const [searchUsersList, setSearchUsersList] = useState<User[] | null>(null);
     const [conversationList, setConversationList] = useState<ConversationUser[]>([]);
-    const [messageList, setmessageList] = useState<Message[]>([]);
+    const [messageList, setmessageList] = useState<any[]>([]);
     const [selectedUser, setSelectedUser] = useState<ConversationUser | null>(null);
     const [modalShow, setModalShow] = useState(false);
     const [searchInput, setsearchInput] = useState('');
@@ -69,15 +69,31 @@ function Accounts() {
 
     useEffect(() => {
         if (!selectedUser) return;
-        getMessagesContinuous(selectedUser.conversationId, (data: Message[]) => {
-            setmessageList(data);
+        getMessagesContinuous(selectedUser.conversationId, async (data: Message[]) => {
+            const groupedMessages = groupMessagesByDate(data);
+            console.log(groupedMessages)
+
+            setmessageList(groupedMessages);
         })
     }, [selectedUser])
 
+    function groupMessagesByDate(messages: Message[]) {
+        const groupedMessages: any = {};
+        messages.forEach((message) => {
+            const createdAt = new Date(message.createdAt);
+            const dateKey = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
+            if (!groupedMessages[dateKey]) {
+                groupedMessages[dateKey] = [];
+            }
+            groupedMessages[dateKey].push(message);
+        });
+        return groupedMessages;
+    }
+
     useEffect(() => {
         const ele = document.querySelector('.messList');
-        if(!ele)return;
-        ele.scrollTop = ele.scrollHeight
+        if (!ele) return;
+        ele.scrollTop = ele?.scrollHeight
     }, [messageList]);
 
     function selectUser(convo: any) {
@@ -138,10 +154,8 @@ function Accounts() {
                                 </button>
                             )
                         })
-
                         }
                     </div>
-
                 </div>
             </div>
             {/*right-sidebar    */}
@@ -161,7 +175,6 @@ function Accounts() {
                                             className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
                                     }
                                 </div>
-
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ? new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {dateStyle: 'short', timeStyle: 'short'}) : 'active'} </p>
@@ -172,31 +185,33 @@ function Accounts() {
                             </div>
                         </div>
                         <div className="h-full messList scroll-smooth">
-                            <div>  {/*messages of same day*/}
-                                {/* day-time */}
-                                <div className="flex w-full items-center gap-2 my-3">
-                                    <hr className="border-b dark:border-gray-700 w-full"/>
-                                    today <hr className="w-full border-b dark:border-gray-700"/>
-                                </div>
-                                <div className="messages">
-                                    {/*receiver*/}
-                                    {messageList?.map((mes: Message) => {
-                                        return (
-                                            <div
-                                                className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                            {Object.entries(messageList).map(([date, message]) => (
+                                <div key={date}>
+                                    <div className="flex w-full items-center gap-2 my-3">
+                                        <hr className="border-b dark:border-gray-700 w-full"/>
+                                        <span className="w-full text-center">{date}</span>
+                                        <hr className="w-full border-b dark:border-gray-700"/>
+                                    </div>
+                                    <div className="messages">
+                                        {message.map((mes: Message) => {
+                                            return (
                                                 <div
-                                                    className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
-                                                    {mes.senderId === selectedUser.uid && <span
-                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
-                                                    <span className="p-2">{mes.messageContent}</span>
-                                                    {mes.senderId !== selectedUser.uid && <span
-                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                    className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                                                    <div
+                                                        className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                        {mes.senderId === selectedUser.uid && <span
+                                                            className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                        <span className="p-2">{mes.messageContent}</span>
+                                                        {mes.senderId !== selectedUser.uid && <span
+                                                            className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )
-                                    })}
+                                            )
+                                        })
+                                        }
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                         {/*bottom bar*/}
                         <div className="p-4 border-t border-gray-700">
@@ -279,6 +294,5 @@ function Accounts() {
         </div>
     )
 }
-
 
 export default Accounts
