@@ -34,6 +34,7 @@ function Profile() {
             if (saveChanges) {
                 setProfileUser(editProfileUser)
                 setEditProfileUser(null)
+                successAlert('Profile Updated','Profile changes are updated.')
             }else{
                 setProfileUser(profileUser)
                 setEditProfileUser(null)
