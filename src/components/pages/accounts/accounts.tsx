@@ -12,7 +12,7 @@ import {
     getMessagesContinuous,
     Message
 } from "../../../API/firebase/database.ts";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
 import {BiRightArrowCircle} from "react-icons/bi";
 import {ImAttachment, ImCross} from "react-icons/im";
@@ -26,11 +26,13 @@ function Accounts() {
     const [modalShow, setModalShow] = useState(false);
     const [searchInput, setsearchInput] = useState('');
     const [messageInput, setmessageInput] = useState('');
+    const [selectUserAfterUpdate, setSelectUserAfterUpdate] = useState<string|null>(null);
 
     const listHandler = async (res: Conversation[]) => {
         const conversations = res.map(i => (
             {...i, users: i.users.filter((u: any) => u !== auth.currentUser?.uid ?? '')}
         ));
+        if (!conversations.length) return;
         getMultipleUsersContinuous(conversations.map(i => i.users[0]), (d: User[]) => {
             let updatedUsers: ConversationUser[] = []
             for (let index = 0; index < conversations.length; index++) {
@@ -52,11 +54,13 @@ function Accounts() {
     }, []);
 
     useEffect(() => {
-        if (!selectedUser) return;
-        let updatedSelectedUser = structuredClone(conversationList.find(i => i.uid === selectedUser.uid));
-        if (!updatedSelectedUser) return;
-        setSelectedUser(updatedSelectedUser);
-    }, [conversationList])
+        if(!selectUserAfterUpdate) return;
+        const selectedUsr = conversationList.find(i => i.uid === selectUserAfterUpdate);
+        if(!selectedUsr) return;
+        setSelectedUser(selectedUsr);
+        setModalShow(false);
+
+    }, [conversationList, selectUserAfterUpdate])
 
     useEffect(() => {
         if (!modalShow) return;
@@ -99,12 +103,10 @@ function Accounts() {
         setSelectedUser(convo)
     }
 
-    function createConvo(user: User) {
+    function createConv(user: User) {
         createConversation(user.uid).then(() => {
-            let updatedSelectedUser = structuredClone(conversationList.find(i => i.uid === user.uid));
-            if (!updatedSelectedUser) return;
-            setSelectedUser(updatedSelectedUser);
-            setModalShow(false)
+            setSelectUserAfterUpdate(user.uid)
+            // setModalShow(false)
         }).catch((err) => {
             console.error(err);
         })
@@ -174,7 +176,10 @@ function Accounts() {
                                 </div>
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{selectedUser?.displayName}</h1>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ? new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {dateStyle: 'short', timeStyle: 'short'}) : 'active'} </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedUser?.lastOnline !== 'active' ? new Date(selectedUser?.lastOnline).toLocaleString("en-IN", {
+                                        dateStyle: 'short',
+                                        timeStyle: 'short'
+                                    }) : 'active'} </p>
                                 </div>
                             </div>
                             <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700">
@@ -250,7 +255,7 @@ function Accounts() {
                                 <div className="py-2 w-full h-64 overflow-y-auto">
                                     {searchUsersList?.map((users: User, index) => {
                                         return (
-                                            <div onClick={() => createConvo(users)}
+                                            <div onClick={() => createConv(users)}
                                                  key={index}
                                                  className={`visibleArrow flex items-center w-full py-2 transition-colors duration-200 hover:bg-gray-800 hover:text-white dark:hover:text-white dark:hover:bg-gray-700 focus:outline-none cursor-pointer gap-2 px-2 rounded-xl`}>
                                                 <div className="cursor-pointer flex gap-2 items-center w-full">
