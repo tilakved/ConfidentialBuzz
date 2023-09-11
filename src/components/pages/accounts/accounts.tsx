@@ -12,7 +12,7 @@ import {
     getMessagesContinuous,
     Message
 } from "../../../API/firebase/database.ts";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {auth} from "../../../API/firebase.config.ts";
 import {BiRightArrowCircle} from "react-icons/bi";
 import {ImAttachment, ImCross} from "react-icons/im";

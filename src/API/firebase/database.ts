@@ -13,8 +13,7 @@ import {
     documentId
 } from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
-import firebase from 'firebase/compat';
-import Unsubscribe = firebase.Unsubscribe;
+
 
 export interface User {
     displayName: string;
@@ -78,7 +77,6 @@ export async function updateUserOnlineStatus(status: User['lastOnline']) {
 }
 
 export async function createConversation(receiverId: string) {
-
     const convos = await getConversationList();
     const existing = convos.filter(item => item.users.includes(receiverId));
     if (existing.length) {
@@ -138,7 +136,7 @@ export function createMessage(conversationId: string, message: string) {
 
 }
 
-let cancelCurrentSnapshot:Unsubscribe;
+let cancelCurrentSnapshot:Function;
 export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
     const targetConversation = doc(database, "conversations", conversationId);
     const targetCollection = collection(targetConversation, 'messages');
