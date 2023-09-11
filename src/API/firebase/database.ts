@@ -10,10 +10,10 @@ import {
     setDoc,
     where,
     updateDoc,
-    documentId
+    documentId,
 } from "firebase/firestore";
+import {User as DBUser} from 'firebase/auth'
 import {auth, database} from "../firebase.config.ts"
-
 
 export interface User {
     displayName: string;
@@ -21,6 +21,7 @@ export interface User {
     photoURL: string;
     uid: string;
     lastOnline: number | "active";
+    conversations: string[];
 }
 
 export interface Message {
@@ -45,11 +46,29 @@ export interface ConversationUser extends User {
     lastMessage: string;
 }
 
-export async function addUser(user: any) {
+
+export async function getSearchList(searchString: string): Promise<User[]> {
+    if (!auth.currentUser) throw new Error("User Not Found");
+
+    const users = await getDocs(collection(database, 'users')).then((snapshot) => snapshot.docs.map(i => ({
+        ...i.data(),
+        uid: i.id
+    } as User)));
+    const re = new RegExp(searchString, 'i');
+    return users.filter(i => i.uid !== auth.currentUser?.uid && re.test(i.displayName + "" + i.email + "" + i.uid));
+}
+
+
+//  FINALIZED
+
+export async function addUser(user: DBUser) {
     const {displayName, email, photoURL, uid} = user;
     const documentRef = doc(database, 'users', uid);
-    return await setDoc(documentRef, {displayName, email, uid, photoURL, lastOnline: "active"})
+    return await setDoc(documentRef, {displayName, email, uid, photoURL, lastOnline: "active", conversations: []})
 }
+
+
+
 
 export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
     const docRef = doc(database, "users", uid);
@@ -136,11 +155,14 @@ export function createMessage(conversationId: string, message: string) {
 
 }
 
-let cancelCurrentSnapshot:Function;
+let cancelCurrentSnapshot:ReturnType<typeof onSnapshot> | null = null;
 export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
     const targetConversation = doc(database, "conversations", conversationId);
     const targetCollection = collection(targetConversation, 'messages');
-    if(cancelCurrentSnapshot)cancelCurrentSnapshot();
+    if(cancelCurrentSnapshot !== null) {
+        cancelCurrentSnapshot();
+        cancelCurrentSnapshot = null;
+    }
     cancelCurrentSnapshot = onSnapshot(query(targetCollection, orderBy('createdAt', "asc")), (sn) => {
         messageHandler(sn.docs.map(i => i.data()))
     })
