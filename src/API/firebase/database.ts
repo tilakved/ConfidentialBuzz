@@ -13,6 +13,8 @@ import {
     documentId
 } from "firebase/firestore";
 import {auth, database} from "../firebase.config.ts"
+import firebase from 'firebase/compat';
+import Unsubscribe = firebase.Unsubscribe;
 
 export interface User {
     displayName: string;
@@ -136,10 +138,12 @@ export function createMessage(conversationId: string, message: string) {
 
 }
 
+let cancelCurrentSnapshot:Unsubscribe;
 export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
     const targetConversation = doc(database, "conversations", conversationId);
     const targetCollection = collection(targetConversation, 'messages');
-    onSnapshot(query(targetCollection, orderBy('createdAt', "asc")), (sn) => {
+    if(cancelCurrentSnapshot)cancelCurrentSnapshot();
+    cancelCurrentSnapshot = onSnapshot(query(targetCollection, orderBy('createdAt', "asc")), (sn) => {
         messageHandler(sn.docs.map(i => i.data()))
     })
 

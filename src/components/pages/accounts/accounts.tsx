@@ -69,6 +69,7 @@ function Accounts() {
 
     useEffect(() => {
         if (!selectedUser) return;
+        setmessageList([]);
         getMessagesContinuous(selectedUser.conversationId, async (data: Message[]) => {
             const groupedMessages = groupMessagesByDate(data);
             setmessageList(groupedMessages);
