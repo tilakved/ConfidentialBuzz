@@ -154,7 +154,6 @@ export async function getMessageLists(conversationId: string, updateMessageList:
     }
         cancelSnapshotMessage = onSnapshot(messageQuery,snapshot => {
             const messages = snapshot.docs.map(i=>({...i.data(), uid:i.id}))
-            console.log(messages)
             updateMessageList(messages)
         })
 }
