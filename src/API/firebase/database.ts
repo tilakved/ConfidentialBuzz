@@ -46,16 +46,17 @@ export interface ConversationUser extends User {
     lastMessage: string;
 }
 
-
-export async function getSearchList(searchString: string): Promise<User[]> {
+export async function getSearchList(searchString: string, handleSearchList: Function) {
     if (!auth.currentUser) throw new Error("User Not Found");
-
-    const users = await getDocs(collection(database, 'users')).then((snapshot) => snapshot.docs.map(i => ({
-        ...i.data(),
-        uid: i.id
-    } as User)));
-    const re = new RegExp(searchString, 'i');
-    return users.filter(i => i.uid !== auth.currentUser?.uid && re.test(i.displayName + "" + i.email + "" + i.uid));
+    onSnapshot(collection(database, 'users'), async (snapshot) => {
+        const dt = snapshot.docs.map(i => ({
+            ...i.data(),
+            uid: i.id
+        } as User))
+        const re = new RegExp(searchString, 'i');
+        const filteredUser = dt.filter(i => i.uid !== auth.currentUser?.uid && re.test(i.displayName + "" + i.email + "" + i.uid));
+        handleSearchList(filteredUser)
+    })
 }
 
 export async function addUser(user: DBUser) {
@@ -97,7 +98,7 @@ export async function getConversationListContinuous(snapConservationList: Functi
         const convosUserIds = convos.map(i => i.users.find(usrid => usrid !== currentUserUid) ?? '').filter(f => !!f.length);
         const convosUserQuery = query(collection(database, 'users'), where(documentId(), 'in', convosUserIds))
         onSnapshot(convosUserQuery, snapshot1 => {
-             const data = snapshot1.docs.map(i => {
+            const data = snapshot1.docs.map(i => {
                 const Obj: any = {...i.data(), uid: i.id, ...convos.find(c => c.users.includes(i.id))}
                 delete Obj.conversations
                 delete Obj.users
@@ -134,39 +135,6 @@ export async function updateUserOnlineStatus(status: User['lastOnline']) {
         lastOnline: status
     });
 }
-
-// export async function createConversation(receiverId: string) {
-//     const convos = await getConversationList();
-//     const existing = convos.filter(item => item.users.includes(receiverId));
-//     if (existing.length) {
-//         return existing[0];
-//     }
-//     const conversation: Partial<Conversation> = {
-//         createdAt: Date.now(),
-//         users: [
-//             receiverId, auth.currentUser?.uid ?? ""
-//         ],
-//         lastMessage: "",
-//     }
-//     return await addDoc(collection(database, 'conversations'), conversation).then(item => ({...conversation, conversationId: item.id} as Conversation));
-// }
-
-export async function getConversationList(): Promise<Conversation[]> {
-    if (!auth.currentUser) throw new Error("User Not Found");
-    const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
-    return await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({
-        ...d.data(),
-        conversationId: d.id
-    } as Conversation)));
-}
-
-// export async function getConversationListContinuous(listHandler: Function): Promise<void> {
-//     if (!auth.currentUser) throw new Error("User Not Found");
-//     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
-//     onSnapshot(userQuery, (snapshot) => {
-//         listHandler(snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
-//     });
-// }
 
 export async function getAllUsersList(searchString: string): Promise<User[]> {
     if (!auth.currentUser) throw new Error("User Not Found");

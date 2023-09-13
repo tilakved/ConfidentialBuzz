@@ -49,10 +49,9 @@ function Accounts() {
 
     useEffect(() => {
         const timeout = setTimeout(async () => {
-            const results = await getSearchList(state.searchString).catch(err => {
-                console.error("Error Occurred:", err)
-            });
-            updateState({userSearchResults: results ?? []})
+            await getSearchList(state.searchString,((res)=>{
+                updateState({userSearchResults: res ?? []})
+            }));
 
         }, 500);
         return () => {
@@ -66,11 +65,9 @@ function Accounts() {
     const selectedUser = useMemo(() => {
         if (!state.selectedConversationId) return null;
         const selectedUser = state.conversationList.find((i: ConversationUser) => i.conversationId === state.selectedConversationId);
-        console.log(selectedUser)
         if (!selectedUser) {
             throw new Error("not found")
         }
-        console.log("sel:", selectedUser)
         return selectedUser;
     }, [state.selectedConversationId])
     // /Memo
@@ -78,7 +75,6 @@ function Accounts() {
     // Functions
 
     function selectConversation(conversationId: string) {
-        console.log(conversationId, state.conversationList)
         const conversation = state.conversationList.find(c => c.conversationId === conversationId);
         if (!conversation) {
             throw new Error("Conversation Does not Exist");
@@ -88,7 +84,6 @@ function Accounts() {
 
     function createConv(receiverId: string) {
         const existingConversationUser = state.conversationList.find(user => user.uid === receiverId);
-        console.log('exist', existingConversationUser)
         if (existingConversationUser) {
             selectConversation(existingConversationUser.conversationId);
             updateState({showModal: false});
