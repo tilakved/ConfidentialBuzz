@@ -65,7 +65,6 @@ function Accounts() {
         if (!state.selectedConversationId) return;
         updateState({messageList: []})
         getMessageLists(state.selectedConversationId, (res: Message[]) => {
-            console.log(res);
             updateState({messageList: res})
         }).catch((err) => {
             console.error(err);
