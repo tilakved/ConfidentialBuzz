@@ -71,6 +71,13 @@ function Accounts() {
             failAlert('Error Occurred', err, 5000)
         })
     }, [state.selectedConversationId])
+
+    useEffect(() => {
+        const ele = document.querySelector('.messList');
+        if (!ele) return;
+        ele.scrollTop = ele?.scrollHeight
+    }, [state.messageList]);
+
     // /Effects
 
     //Memo
@@ -198,26 +205,26 @@ function Accounts() {
                         <div className="h-full messList scroll-smooth">
                             <div className="messages">
                                 {state.messageList.map((mes: Message, index: number, messages) => {
-                                    return (<>
+                                    return (<div key={index}>
                                             {!!index && isDateChanged(messages[index - 1].createdAt, messages[index].createdAt) &&
-                                                <div className="flex w-full items-center gap-2 my-3">
+                                                <div className="flex w-full items-center gap-2 my-3" >
                                                     <hr className="border-b dark:border-gray-700 w-full"/>
                                                     <span
                                                         className="w-full text-center">{new Date(mes.createdAt).toDateString()}</span>
                                                     <hr className="w-full border-b dark:border-gray-700"/>
                                                 </div>}
                                             {!!!index &&
-                                                <div className="flex w-full items-center gap-2 my-3">
+                                                <div className="flex w-full items-center gap-2 my-3" >
                                                     <hr className="border-b dark:border-gray-700 w-full"/>
                                                     <span
                                                         className="w-full text-center">{new Date(mes.createdAt).toDateString() === new Date().toDateString() && 'Today'}</span>
                                                     <hr className="w-full border-b dark:border-gray-700"/>
                                                 </div>
                                             }
-                                            <div key={index}
+                                            <div
                                                  className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                 <div
-                                                    className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    className={`m-3 p-2 rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
                                                     {mes.senderId === selectedUser.uid && <span
                                                         className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                     <span className="p-2">{mes.messageContent}</span>
@@ -225,7 +232,7 @@ function Accounts() {
                                                         className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                 </div>
                                             </div>
-                                        </>
+                                        </div>
                                     )
                                 })
                                 }

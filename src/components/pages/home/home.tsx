@@ -27,7 +27,7 @@ function Home() {
     }
 
     useEffect(() => {
-        updateUserOnlineStatus('active').catch((err) => console.log(err))
+        updateUserOnlineStatus('active').catch((err) => console.error(err))
     }, [])
 
     function LogOut() {
