@@ -2,14 +2,15 @@ import "./accounts.scss"
 import {useEffect, useMemo, useState} from "react";
 import {
     ConversationUser,
-    createConversation,
-    getConversationListContinuous,
-    getSearchList,
+    createConversation, createMessage,
+    getConversationListContinuous, getMessageLists,
+    getSearchList, Message,
 } from "../../../API/firebase/database.ts";
 import {BsInfoCircle, BsSearch} from "react-icons/bs";
 import {BiRightArrowCircle} from "react-icons/bi";
 import {ImAttachment, ImCross} from "react-icons/im";
 import {IoMdSend} from "react-icons/io";
+import {failAlert, successAlert} from "../../../swal/swal.ts";
 
 interface State {
     searchString: string;
@@ -18,6 +19,7 @@ interface State {
     selectedConversationId: string | null;
     userSearchResults: any[];
     messageValue: string;
+    messageList: Message[];
 }
 
 function Accounts() {
@@ -31,6 +33,7 @@ function Accounts() {
         selectedConversationId: null,
         userSearchResults: [],
         messageValue: '',
+        messageList: []
     })
 
     function updateState(updates: Partial<State>) {
@@ -52,33 +55,42 @@ function Accounts() {
             await getSearchList(state.searchString, ((res) => {
                 updateState({userSearchResults: res ?? []})
             }));
-
         }, 500);
         return () => {
             clearTimeout(timeout);
         }
     }, [state.searchString]);
 
+    useEffect(() => {
+        if (!state.selectedConversationId) return;
+        updateState({messageList: []})
+        getMessageLists(state.selectedConversationId, (res: Message[]) => {
+            console.log(res);
+            updateState({messageList: res})
+        }).catch((err) => {
+            console.error(err);
+            failAlert('Error Occurred', err, 5000)
+        })
+    }, [state.selectedConversationId])
     // /Effects
 
     //Memo
+
     const selectedUser = useMemo(() => {
         if (!state.selectedConversationId) return null;
         const selectedUser = state.conversationList.find((i: ConversationUser) => i.conversationId === state.selectedConversationId);
         if (!selectedUser) {
-            throw new Error("not found")
+            failAlert('Error Occurred', "Select again user not found!", 5000)
         }
         return selectedUser;
     }, [state.selectedConversationId, state.conversationList])
+
+
     // /Memo
 
     // Functions
 
     function selectConversation(conversationId: string) {
-        const conversation = state.conversationList.find(c => c.conversationId === conversationId);
-        if (!conversation) {
-            throw new Error("Conversation Does not Exist");
-        }
         updateState({selectedConversationId: conversationId});
     }
 
@@ -92,14 +104,26 @@ function Accounts() {
         createConversation(receiverId).then((conversationId) => {
             if (!conversationId) return;
             selectConversation(conversationId);
+            updateState({showModal: false});
         }).catch((err) => {
             console.error("Error Occurred:", err)
+            failAlert('Error Occurred', err, 5000)
         })
     }
 
     function sendMessage() {
+        if (!state.selectedConversationId) return;
+        createMessage(state.selectedConversationId, state.messageValue).catch((err) => {
+            console.error("Error Occurred:", err)
+            failAlert('Error Occurred', err, 5000)
+        })
         updateState({messageValue: ''});
-        return;
+    }
+
+    function isDateChanged(date1: number, date2: number): boolean {
+        const d1 = new Date(date1).toDateString()
+        const d2 = new Date(date2).toDateString()
+        return d1 !== d2;
     }
 
     // /Functions
@@ -173,33 +197,40 @@ function Accounts() {
                             </div>
                         </div>
                         <div className="h-full messList scroll-smooth">
-                            {/*{Object.entries(messageList).map(([date, message]) => (*/}
-                            {/*    <div key={date}>*/}
-                            {/*        <div className="flex w-full items-center gap-2 my-3">*/}
-                            {/*            <hr className="border-b dark:border-gray-700 w-full"/>*/}
-                            {/*            <span className="w-full text-center">{date}</span>*/}
-                            {/*            <hr className="w-full border-b dark:border-gray-700"/>*/}
-                            {/*        </div>*/}
-                            {/*        <div className="messages">*/}
-                            {/*            {message.map((mes: Message, index: number) => {*/}
-                            {/*                return (*/}
-                            {/*                    <div key={index}*/}
-                            {/*                         className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>*/}
-                            {/*                        <div*/}
-                            {/*                            className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>*/}
-                            {/*                            {mes.senderId === selectedUser.uid && <span*/}
-                            {/*                                className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}*/}
-                            {/*                            <span className="p-2">{mes.messageContent}</span>*/}
-                            {/*                            {mes.senderId !== selectedUser.uid && <span*/}
-                            {/*                                className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}*/}
-                            {/*                        </div>*/}
-                            {/*                    </div>*/}
-                            {/*                )*/}
-                            {/*            })*/}
-                            {/*            }*/}
-                            {/*        </div>*/}
-                            {/*    </div>*/}
-                            {/*))}*/}
+                            <div className="messages">
+                                {state.messageList.map((mes: Message, index: number, messages) => {
+                                    return (<>
+                                            {!!index && isDateChanged(messages[index - 1].createdAt, messages[index].createdAt) &&
+                                                <div className="flex w-full items-center gap-2 my-3">
+                                                    <hr className="border-b dark:border-gray-700 w-full"/>
+                                                    <span
+                                                        className="w-full text-center">{new Date(mes.createdAt).toDateString()}</span>
+                                                    <hr className="w-full border-b dark:border-gray-700"/>
+                                                </div>}
+                                            {!!!index &&
+                                                <div className="flex w-full items-center gap-2 my-3">
+                                                    <hr className="border-b dark:border-gray-700 w-full"/>
+                                                    <span
+                                                        className="w-full text-center">{new Date(mes.createdAt).toDateString() === new Date().toDateString() && 'Today'}</span>
+                                                    <hr className="w-full border-b dark:border-gray-700"/>
+                                                </div>
+                                            }
+                                            <div key={index}
+                                                 className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                                                <div
+                                                    className={`m-3 p-2 max-w-[320px] rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    {mes.senderId === selectedUser.uid && <span
+                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                    <span className="p-2">{mes.messageContent}</span>
+                                                    {mes.senderId !== selectedUser.uid && <span
+                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                })
+                                }
+                            </div>
                         </div>
                         {/*bottom bar*/}
                         <div className="p-4 border-t border-gray-700">
@@ -207,6 +238,7 @@ function Accounts() {
                                 <button className="dark:bg-gray-800 p-2 rounded text-white"><ImAttachment
                                     size={'1.7rem'}/></button>
                                 <input placeholder="Write message here..." value={state.messageValue}
+                                       name="messageInput" id="messageInput"
                                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                                        onChange={(event) => updateState({messageValue: (event.target.value) ?? ""})}
                                        className="p-2 rounded text-white w-full outline-none dark:bg-gray-800"/>

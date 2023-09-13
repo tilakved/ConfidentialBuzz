@@ -6,8 +6,8 @@ import {
     documentId,
     getDocs,
     onSnapshot,
-    orderBy,
     query,
+    orderBy,
     setDoc,
     updateDoc,
     where,
@@ -77,14 +77,15 @@ export async function createConversation(receiverId: string) {
         throw err
     });
     await updateDoc(doc(database, 'users', auth.currentUser.uid), {conversations: arrayUnion(conversationId)});
+    await updateDoc(doc(database, 'users', receiverId), {conversations: arrayUnion(conversationId)});
     return conversationId
 }
 
 export async function getConversationListContinuous(snapConservationList: Function) {
     if (!auth.currentUser) return;
     const currentUserUid = auth.currentUser.uid;
-
-//     get continuous conversation ids from user
+    let cancelSnapshot!:ReturnType<typeof onSnapshot>;
+    // get continuous conversation ids from user
     onSnapshot(doc(database, 'users', currentUserUid), async (snapshot) => {
         const userData: User | undefined = snapshot.data() as User;
         if (!userData) return;
@@ -97,7 +98,11 @@ export async function getConversationListContinuous(snapConservationList: Functi
         } as Conversation)));
         const convosUserIds = convos.map(i => i.users.find(usrid => usrid !== currentUserUid) ?? '').filter(f => !!f.length);
         const convosUserQuery = query(collection(database, 'users'), where(documentId(), 'in', convosUserIds))
-        onSnapshot(convosUserQuery, snapshot1 => {
+
+        if (cancelSnapshot) {
+            cancelSnapshot()
+        }
+        cancelSnapshot = onSnapshot(convosUserQuery, snapshot1 => {
             const data = snapshot1.docs.map(i => {
                 const Obj: any = {...i.data(), uid: i.id, ...convos.find(c => c.users.includes(i.id))}
                 delete Obj.conversations
@@ -118,16 +123,6 @@ export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
     })
 }
 
-
-//  FINALIZED
-
-export function getMultipleUsersContinuous(uids: string[], userHandler: Function): void {
-    const q = query(collection(database, 'users'), where(documentId(), 'in', uids));
-    onSnapshot(q, (snapshot) => {
-        userHandler(snapshot.docs.map(i => ({...i.data(), uid: i.id} as User)));
-    })
-}
-
 export async function updateUserOnlineStatus(status: User['lastOnline']) {
     if (!auth.currentUser) return;
     const documentRef = doc(database, 'users', auth.currentUser.uid);
@@ -136,21 +131,8 @@ export async function updateUserOnlineStatus(status: User['lastOnline']) {
     });
 }
 
-export async function getAllUsersList(searchString: string): Promise<User[]> {
-    if (!auth.currentUser) throw new Error("User Not Found");
-    const docRef = collection(database, "users");
-    const docSnap = await getDocs(docRef);
-    let usersList = docSnap.docs.map(it => it.data())
-    usersList = usersList.filter(user => auth.currentUser?.uid !== user.uid);
-    usersList = usersList.filter(user => ((user.displayName).toLowerCase()).includes((searchString.trim()).toLowerCase()));
-    return usersList as User[]
-}
-
-export function createMessage(conversationId: string, message: string) {
+export async function createMessage(conversationId: string, message: string) {
     if (!auth.currentUser) return;
-    const targetConversation = doc(database, "conversations", conversationId);
-    const targetCollection = collection(targetConversation, 'messages');
-
     const messageObj = {
         conversationId,
         messageContent: message,
@@ -159,24 +141,20 @@ export function createMessage(conversationId: string, message: string) {
         messageType: 'text',
         isRead: false
     }
-
-    addDoc(targetCollection, messageObj).catch(err => {
+    await addDoc(collection(database, 'messages'), messageObj).catch(err => {
         throw err
     })
-
 }
 
-let cancelCurrentSnapshot: ReturnType<typeof onSnapshot> | null = null;
-
-export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
-    const targetConversation = doc(database, "conversations", conversationId);
-    const targetCollection = collection(targetConversation, 'messages');
-    if (cancelCurrentSnapshot !== null) {
-        cancelCurrentSnapshot();
-        cancelCurrentSnapshot = null;
+let cancelSnapshotMessage!:ReturnType<typeof onSnapshot>;
+export async function getMessageLists(conversationId: string, updateMessageList: Function) {
+    const messageQuery = query(collection(database,'messages'),where('conversationId',"==",conversationId), orderBy('createdAt', 'asc'))
+    if(cancelSnapshotMessage){
+        cancelSnapshotMessage()
     }
-    cancelCurrentSnapshot = onSnapshot(query(targetCollection, orderBy('createdAt', "asc")), (sn) => {
-        messageHandler(sn.docs.map(i => i.data()))
-    })
-
+        cancelSnapshotMessage = onSnapshot(messageQuery,snapshot => {
+            const messages = snapshot.docs.map(i=>({...i.data(), uid:i.id}))
+            console.log(messages)
+            updateMessageList(messages)
+        })
 }
