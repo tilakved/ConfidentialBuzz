@@ -31,11 +31,14 @@ function Home() {
     }, [])
 
     function LogOut() {
-        updateUserOnlineStatus(Date.now()).catch((err) => {
-            console.error(err)
-        })
-        auth.signOut();
-        navigate('/login')
+        const respond = confirm("Are you sure you want to logout?")
+        if (respond){
+            updateUserOnlineStatus(Date.now()).catch((err) => {
+                console.error(err)
+            })
+            auth.signOut();
+            navigate('/login')
+        }
     }
 
     function handleOnView(value: keyof ElementHolder) {
