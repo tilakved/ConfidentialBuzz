@@ -118,7 +118,7 @@ function Accounts() {
     }
 
     function sendMessage() {
-        if (!state.selectedConversationId) return;
+        if (!state.selectedConversationId || !state.messageValue.trim()) return;
         createMessage(state.selectedConversationId, state.messageValue).catch((err) => {
             console.error("Error Occurred:", err)
             failAlert('Error Occurred', err, 5000)
