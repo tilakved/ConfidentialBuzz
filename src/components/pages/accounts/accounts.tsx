@@ -49,7 +49,7 @@ function Accounts() {
 
     useEffect(() => {
         const timeout = setTimeout(async () => {
-            await getSearchList(state.searchString,((res)=>{
+            await getSearchList(state.searchString, ((res) => {
                 updateState({userSearchResults: res ?? []})
             }));
 
@@ -69,7 +69,7 @@ function Accounts() {
             throw new Error("not found")
         }
         return selectedUser;
-    }, [state.selectedConversationId])
+    }, [state.selectedConversationId, state.conversationList])
     // /Memo
 
     // Functions
