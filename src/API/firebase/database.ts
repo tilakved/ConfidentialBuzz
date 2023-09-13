@@ -7,6 +7,7 @@ import {
     getDocs,
     onSnapshot,
     query,
+    getDoc,
     orderBy,
     setDoc,
     updateDoc,
@@ -14,6 +15,7 @@ import {
 } from "firebase/firestore";
 import {User as DBUser} from 'firebase/auth'
 import {auth, database} from "../firebase.config.ts"
+import {failAlert} from "../../swal/swal.ts";
 
 export interface User {
     displayName: string;
@@ -47,7 +49,11 @@ export interface ConversationUser extends User {
 }
 
 export async function getSearchList(searchString: string, handleSearchList: Function) {
-    if (!auth.currentUser) throw new Error("User Not Found");
+    if (!auth.currentUser) {
+        failAlert('User not found', 'Please try again later!')
+        throw new Error("User Not Found")
+    }
+    ;
     onSnapshot(collection(database, 'users'), async (snapshot) => {
         const dt = snapshot.docs.map(i => ({
             ...i.data(),
@@ -84,7 +90,7 @@ export async function createConversation(receiverId: string) {
 export async function getConversationListContinuous(snapConservationList: Function) {
     if (!auth.currentUser) return;
     const currentUserUid = auth.currentUser.uid;
-    let cancelSnapshot!:ReturnType<typeof onSnapshot>;
+    let cancelSnapshot!: ReturnType<typeof onSnapshot>;
     // get continuous conversation ids from user
     onSnapshot(doc(database, 'users', currentUserUid), async (snapshot) => {
         const userData: User | undefined = snapshot.data() as User;
@@ -115,12 +121,13 @@ export async function getConversationListContinuous(snapConservationList: Functi
 }
 
 export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
-    const userQuery2 = query(collection(database, 'users'), where('uid', '==', uid));
-    onSnapshot(userQuery2, (snapshot2) => {
-        return (snapshot2.docs.map(d => {
-            return d.data()
-        }))
-    })
+    const userData = await getDoc(doc(database, "users", uid));
+    if (userData.exists()) {
+        return userData.data() as User
+    } else {
+        failAlert('User not found', 'Please try again later!')
+        throw new Error("User not found")
+    }
 }
 
 export async function updateUserOnlineStatus(status: User['lastOnline']) {
@@ -146,14 +153,15 @@ export async function createMessage(conversationId: string, message: string) {
     })
 }
 
-let cancelSnapshotMessage!:ReturnType<typeof onSnapshot>;
+let cancelSnapshotMessage!: ReturnType<typeof onSnapshot>;
+
 export async function getMessageLists(conversationId: string, updateMessageList: Function) {
-    const messageQuery = query(collection(database,'messages'),where('conversationId',"==",conversationId), orderBy('createdAt', 'asc'))
-    if(cancelSnapshotMessage){
+    const messageQuery = query(collection(database, 'messages'), where('conversationId', "==", conversationId), orderBy('createdAt', 'asc'))
+    if (cancelSnapshotMessage) {
         cancelSnapshotMessage()
     }
-        cancelSnapshotMessage = onSnapshot(messageQuery,snapshot => {
-            const messages = snapshot.docs.map(i=>({...i.data(), uid:i.id}))
-            updateMessageList(messages)
-        })
+    cancelSnapshotMessage = onSnapshot(messageQuery, snapshot => {
+        const messages = snapshot.docs.map(i => ({...i.data(), uid: i.id}))
+        updateMessageList(messages)
+    })
 }

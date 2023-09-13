@@ -34,8 +34,8 @@ function Profile() {
             if (saveChanges) {
                 setProfileUser(editProfileUser)
                 setEditProfileUser(null)
-                successAlert('Profile Updated','Profile changes are updated.')
-            }else{
+                successAlert('Profile Updated', 'Profile changes are updated.')
+            } else {
                 setProfileUser(profileUser)
                 setEditProfileUser(null)
             }
@@ -59,7 +59,7 @@ function Profile() {
         }
     }
 
-    return (
+    return (profileUser &&
         <div className="w-full h-full p-5">
             <div className="flex content-center flex-col">
                 <div

@@ -10,7 +10,7 @@ import {BsInfoCircle, BsSearch} from "react-icons/bs";
 import {BiRightArrowCircle} from "react-icons/bi";
 import {ImAttachment, ImCross} from "react-icons/im";
 import {IoMdSend} from "react-icons/io";
-import {failAlert, successAlert} from "../../../swal/swal.ts";
+import {failAlert} from "../../../swal/swal.ts";
 
 interface State {
     searchString: string;
@@ -52,7 +52,7 @@ function Accounts() {
 
     useEffect(() => {
         const timeout = setTimeout(async () => {
-            await getSearchList(state.searchString, ((res) => {
+            await getSearchList(state.searchString, ((res:any) => {
                 updateState({userSearchResults: res ?? []})
             }));
         }, 500);
