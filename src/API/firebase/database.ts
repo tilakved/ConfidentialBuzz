@@ -1,16 +1,16 @@
 import {
     addDoc,
+    arrayUnion,
     collection,
     doc,
-    getDoc,
-    orderBy,
+    documentId,
     getDocs,
     onSnapshot,
+    orderBy,
     query,
     setDoc,
-    where,
     updateDoc,
-    documentId,
+    where,
 } from "firebase/firestore";
 import {User as DBUser} from 'firebase/auth'
 import {auth, database} from "../firebase.config.ts"
@@ -58,9 +58,6 @@ export async function getSearchList(searchString: string): Promise<User[]> {
     return users.filter(i => i.uid !== auth.currentUser?.uid && re.test(i.displayName + "" + i.email + "" + i.uid));
 }
 
-
-//  FINALIZED
-
 export async function addUser(user: DBUser) {
     const {displayName, email, photoURL, uid} = user;
     const documentRef = doc(database, 'users', uid);
@@ -68,17 +65,60 @@ export async function addUser(user: DBUser) {
 }
 
 
+export async function createConversation(receiverId: string) {
+    if (!auth.currentUser) return;
+    const conversation: Omit<Conversation, 'conversationId'> = {
+        users: [auth.currentUser.uid, receiverId],
+        createdAt: Date.now(),
+        lastMessage: "",
+    }
+    const conversationId = await addDoc(collection(database, 'conversations'), conversation).then((res) => res.id).catch((err) => {
+        throw err
+    });
+    await updateDoc(doc(database, 'users', auth.currentUser.uid), {conversations: arrayUnion(conversationId)});
+    return conversationId
+}
 
+export async function getConversationListContinuous(snapConservationList: Function) {
+    if (!auth.currentUser) return;
+    const currentUserUid = auth.currentUser.uid;
+
+//     get continuous conversation ids from user
+    onSnapshot(doc(database, 'users', currentUserUid), async (snapshot) => {
+        const userData: User | undefined = snapshot.data() as User;
+        if (!userData) return;
+        const userConvos = userData.conversations;
+        if (userConvos.length === 0) return;
+        const convosQuery = query(collection(database, 'conversations'), where(documentId(), 'in', userConvos));
+        const convos: Conversation[] = await getDocs(convosQuery).then(res => res.docs.map(i => ({
+            ...i.data(),
+            conversationId: i.id
+        } as Conversation)));
+        const convosUserIds = convos.map(i => i.users.find(usrid => usrid !== currentUserUid) ?? '').filter(f => !!f.length);
+        const convosUserQuery = query(collection(database, 'users'), where(documentId(), 'in', convosUserIds))
+        onSnapshot(convosUserQuery, snapshot1 => {
+             const data = snapshot1.docs.map(i => {
+                const Obj: any = {...i.data(), uid: i.id, ...convos.find(c => c.users.includes(i.id))}
+                delete Obj.conversations
+                delete Obj.users
+                return Obj as ConversationUser;
+            });
+            snapConservationList(data)
+        })
+    })
+}
 
 export async function getUserDetails(uid: any = auth.currentUser?.uid ?? "") {
-    const docRef = doc(database, "users", uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        return docSnap.data() as User
-    } else {
-        throw new Error("User not found")
-    }
+    const userQuery2 = query(collection(database, 'users'), where('uid', '==', uid));
+    onSnapshot(userQuery2, (snapshot2) => {
+        return (snapshot2.docs.map(d => {
+            return d.data()
+        }))
+    })
 }
+
+
+//  FINALIZED
 
 export function getMultipleUsersContinuous(uids: string[], userHandler: Function): void {
     const q = query(collection(database, 'users'), where(documentId(), 'in', uids));
@@ -95,35 +135,38 @@ export async function updateUserOnlineStatus(status: User['lastOnline']) {
     });
 }
 
-export async function createConversation(receiverId: string) {
-    const convos = await getConversationList();
-    const existing = convos.filter(item => item.users.includes(receiverId));
-    if (existing.length) {
-        return existing[0];
-    }
-    const conversation: Partial<Conversation> = {
-        createdAt: Date.now(),
-        users: [
-            receiverId, auth.currentUser?.uid ?? ""
-        ],
-        lastMessage: "",
-    }
-    return await addDoc(collection(database, 'conversations'), conversation).then(item => ({...conversation, conversationId: item.id} as Conversation));
-}
+// export async function createConversation(receiverId: string) {
+//     const convos = await getConversationList();
+//     const existing = convos.filter(item => item.users.includes(receiverId));
+//     if (existing.length) {
+//         return existing[0];
+//     }
+//     const conversation: Partial<Conversation> = {
+//         createdAt: Date.now(),
+//         users: [
+//             receiverId, auth.currentUser?.uid ?? ""
+//         ],
+//         lastMessage: "",
+//     }
+//     return await addDoc(collection(database, 'conversations'), conversation).then(item => ({...conversation, conversationId: item.id} as Conversation));
+// }
 
 export async function getConversationList(): Promise<Conversation[]> {
     if (!auth.currentUser) throw new Error("User Not Found");
     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
-    return await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
+    return await getDocs(userQuery).then((snapshot) => snapshot.docs.map(d => ({
+        ...d.data(),
+        conversationId: d.id
+    } as Conversation)));
 }
 
-export async function getConversationListContinuous(listHandler: Function): Promise<void> {
-    if (!auth.currentUser) throw new Error("User Not Found");
-    const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
-    onSnapshot(userQuery, (snapshot) => {
-        listHandler(snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
-    });
-}
+// export async function getConversationListContinuous(listHandler: Function): Promise<void> {
+//     if (!auth.currentUser) throw new Error("User Not Found");
+//     const userQuery = query(collection(database, 'conversations'), where('users', 'array-contains', auth.currentUser.uid));
+//     onSnapshot(userQuery, (snapshot) => {
+//         listHandler(snapshot.docs.map(d => ({...d.data(), conversationId: d.id} as Conversation)));
+//     });
+// }
 
 export async function getAllUsersList(searchString: string): Promise<User[]> {
     if (!auth.currentUser) throw new Error("User Not Found");
@@ -155,11 +198,12 @@ export function createMessage(conversationId: string, message: string) {
 
 }
 
-let cancelCurrentSnapshot:ReturnType<typeof onSnapshot> | null = null;
+let cancelCurrentSnapshot: ReturnType<typeof onSnapshot> | null = null;
+
 export function getMessagesContinuous(conversationId: string, messageHandler: Function) {
     const targetConversation = doc(database, "conversations", conversationId);
     const targetCollection = collection(targetConversation, 'messages');
-    if(cancelCurrentSnapshot !== null) {
+    if (cancelCurrentSnapshot !== null) {
         cancelCurrentSnapshot();
         cancelCurrentSnapshot = null;
     }
