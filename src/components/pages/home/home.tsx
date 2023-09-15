@@ -27,9 +27,13 @@ function Home() {
     }
     useEffect(() => {
         const mode = localStorage.getItem('mode');
-        if (!mode) return;
-        const html = document.getElementsByTagName("html")
-        html[0].className = mode;
+        if (!mode) {
+            localStorage.setItem('mode', 'dark')
+            return;
+        }else{
+            const html = document.getElementsByTagName("html")
+            html[0].className = mode;
+        }
 
     }, []);
 

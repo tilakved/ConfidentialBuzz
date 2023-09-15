@@ -52,7 +52,7 @@ function Accounts() {
 
     useEffect(() => {
         const timeout = setTimeout(async () => {
-            await getSearchList(state.searchString, ((res:any) => {
+            await getSearchList(state.searchString, ((res: any) => {
                 updateState({userSearchResults: res ?? []})
             }));
         }, 500);
@@ -208,7 +208,7 @@ function Accounts() {
                                 {state.messageList.map((mes: Message, index: number, messages) => {
                                     return (<div key={index}>
                                             {!!!index &&
-                                                <div className="flex w-full items-center gap-2 my-3" >
+                                                <div className="flex w-full items-center gap-2 my-3">
                                                     <hr className="border-b dark:border-gray-700 w-full"/>
                                                     <span
                                                         className="w-full text-center">{new Date(mes.createdAt).toLocaleDateString() === new Date().toLocaleDateString() ? 'Today' : new Date(mes.createdAt).toDateString()}</span>
@@ -216,17 +216,18 @@ function Accounts() {
                                                 </div>
                                             }
                                             {!!index && isDateChanged(messages[index - 1].createdAt, messages[index].createdAt) &&
-                                                <div className="flex w-full items-center gap-2 my-3" >
+                                                <div className="flex w-full items-center gap-2 my-3">
                                                     <hr className="border-b dark:border-gray-700 w-full"/>
                                                     <span
                                                         className="w-full text-center">{new Date(mes.createdAt).toLocaleDateString() === new Date().toLocaleDateString() ? 'Today' : new Date(mes.createdAt).toDateString()}</span>
                                                     <hr className="w-full border-b dark:border-gray-700"/>
                                                 </div>}
                                             <div
-                                                 className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
+                                                className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                 <div
                                                     className={`m-3 lg:w-1/2 md:w-full max-w-[50vw] p-2 rounded-xl flex flex-col justify-end ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
-                                                    <span className="p-2 break-words overflow-auto">{mes.messageContent}</span>
+                                                    <span
+                                                        className="p-2 break-words overflow-auto">{mes.messageContent}</span>
                                                     {mes.senderId === selectedUser.uid && <span
                                                         className="text-[11px] text-left">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                     {mes.senderId !== selectedUser.uid && <span

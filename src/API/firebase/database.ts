@@ -68,7 +68,7 @@ export async function getSearchList(searchString: string, handleSearchList: Func
 export async function addUser(user: DBUser) {
     const {displayName, email, photoURL, uid} = user;
     const documentRef = doc(database, 'users', uid);
-    if(await getDoc(documentRef).then(i => i.exists())) return;
+    if (await getDoc(documentRef).then(i => i.exists())) return;
     return await setDoc(documentRef, {displayName, email, uid, photoURL, lastOnline: "active", conversations: []})
 }
 
