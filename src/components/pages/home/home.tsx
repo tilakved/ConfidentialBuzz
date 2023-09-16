@@ -25,6 +25,13 @@ function Home() {
         profile: <Profile/>,
         settings: <Settings/>
     }
+    useEffect(() => {
+        const mode = localStorage.getItem('mode');
+        if (!mode) return;
+        const html = document.getElementsByTagName("html")
+        html[0].className = mode;
+
+    }, []);
 
     useEffect(() => {
         updateUserOnlineStatus('active').catch((err) => console.error(err))
@@ -32,7 +39,7 @@ function Home() {
 
     function LogOut() {
         const respond = confirm("Are you sure you want to logout?")
-        if (respond){
+        if (respond) {
             updateUserOnlineStatus(Date.now()).catch((err) => {
                 console.error(err)
             })

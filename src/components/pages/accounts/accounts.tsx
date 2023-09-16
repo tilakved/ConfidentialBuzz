@@ -153,9 +153,10 @@ function Accounts() {
                         return (
                             <button onClick={() => selectConversation(convo.conversationId as string)}
                                     key={index}
-                                    className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${state.selectedConversationId && state.selectedConversationId === convo.uid ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
+                                    className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${state.selectedConversationId && state.selectedConversationId === convo.conversationId ? `bg-gray-100 dark:bg-gray-800` : ''}`}>
                                 <div className="relative">
                                     <img className="object-cover w-8 h-8 rounded-full"
+
                                          src={convo.photoURL}
                                          alt=""/>
                                     {convo?.lastOnline === 'active' &&
@@ -206,30 +207,30 @@ function Accounts() {
                             <div className="messages">
                                 {state.messageList.map((mes: Message, index: number, messages) => {
                                     return (<div key={index}>
-                                            {!!index && isDateChanged(messages[index - 1].createdAt, messages[index].createdAt) &&
-                                                <div className="flex w-full items-center gap-2 my-3" >
-                                                    <hr className="border-b dark:border-gray-700 w-full"/>
-                                                    <span
-                                                        className="w-full text-center">{new Date(mes.createdAt).toDateString()}</span>
-                                                    <hr className="w-full border-b dark:border-gray-700"/>
-                                                </div>}
                                             {!!!index &&
                                                 <div className="flex w-full items-center gap-2 my-3" >
                                                     <hr className="border-b dark:border-gray-700 w-full"/>
                                                     <span
-                                                        className="w-full text-center">{new Date(mes.createdAt).toDateString() === new Date().toDateString() && 'Today'}</span>
+                                                        className="w-full text-center">{new Date(mes.createdAt).toLocaleDateString() === new Date().toLocaleDateString() ? 'Today' : new Date(mes.createdAt).toDateString()}</span>
                                                     <hr className="w-full border-b dark:border-gray-700"/>
                                                 </div>
                                             }
+                                            {!!index && isDateChanged(messages[index - 1].createdAt, messages[index].createdAt) &&
+                                                <div className="flex w-full items-center gap-2 my-3" >
+                                                    <hr className="border-b dark:border-gray-700 w-full"/>
+                                                    <span
+                                                        className="w-full text-center">{new Date(mes.createdAt).toLocaleDateString() === new Date().toLocaleDateString() ? 'Today' : new Date(mes.createdAt).toDateString()}</span>
+                                                    <hr className="w-full border-b dark:border-gray-700"/>
+                                                </div>}
                                             <div
                                                  className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                 <div
-                                                    className={`m-3 p-2 rounded-xl flex justify-end items-baseline ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    className={`m-3 lg:w-1/2 md:w-full max-w-[50vw] p-2 rounded-xl flex flex-col justify-end ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    <span className="p-2 break-words overflow-auto">{mes.messageContent}</span>
                                                     {mes.senderId === selectedUser.uid && <span
-                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
-                                                    <span className="p-2">{mes.messageContent}</span>
+                                                        className="text-[11px] text-left">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                     {mes.senderId !== selectedUser.uid && <span
-                                                        className="text-[11px]">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
+                                                        className="text-[11px] text-right">{new Date(mes.createdAt).toLocaleString("en-IN", {timeStyle: 'short'})}</span>}
                                                 </div>
                                             </div>
                                         </div>
