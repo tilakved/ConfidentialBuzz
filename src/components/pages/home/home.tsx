@@ -67,16 +67,16 @@ function Home() {
                             <img className="w-[1.7rem]" src={Logo} alt=""/>
                         </a>
                         {/*text-blue-500*/}
-                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100 cursor-pointer ${viewContent == 'profile' && 'bg-gray-800'}`}
+                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100 cursor-pointer ${viewContent == 'profile' && 'dark:bg-gray-800 bg-gray-200'}`}
                            onClick={() => handleOnView("profile")}>
                             <BiUserCircle size={'1.7rem'}/>
                         </a>
-                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100 cursor-pointer ${viewContent == 'accounts' && 'bg-gray-800'}`}
+                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100 cursor-pointer ${viewContent == 'accounts' && 'dark:bg-gray-800 bg-gray-200'}`}
                            onClick={() => handleOnView('accounts')}>
                             <MdOutlineGroups2 size={'1.7rem'}/>
                         </a>
 
-                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100   cursor-pointer ${viewContent == 'settings' && 'bg-gray-800'}`}
+                        <a className={`p-1.5 text-gray-500 focus:outline-nones transition-colors duration-200 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100   cursor-pointer ${viewContent == 'settings' && 'dark:bg-gray-800 bg-gray-200'}`}
                            onClick={() => handleOnView('settings')}>
                             <FaGear size={'1.7rem'}/>
                         </a>
