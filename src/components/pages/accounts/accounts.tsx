@@ -225,7 +225,7 @@ function Accounts() {
                                             <div
                                                 className={`flex ${mes.senderId === selectedUser.uid ? 'justify-start' : 'justify-end'}`}>
                                                 <div
-                                                    className={`m-3 lg:w-1/2 md:w-full max-w-[50vw] p-2 rounded-xl flex flex-col justify-end ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
+                                                    className={`m-3 lg:w-1/2 md:w-full max-w-[350px] p-2 rounded-xl flex flex-col justify-end ${mes.senderId === selectedUser.uid ? 'bg-primary/50' : 'bg-primary'}`}>
                                                     <span
                                                         className="p-2 break-words overflow-auto">{mes.messageContent}</span>
                                                     {mes.senderId === selectedUser.uid && <span
