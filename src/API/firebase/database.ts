@@ -151,6 +151,8 @@ export async function createMessage(conversationId: string, message: string) {
     }
     await addDoc(collection(database, 'messages'), messageObj).catch(err => {
         throw err
+    }).then(async () => {
+        await updateDoc(doc(database, 'conversations', conversationId), {lastMessage: message})
     })
 }
 

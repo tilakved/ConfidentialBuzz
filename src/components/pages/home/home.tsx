@@ -1,7 +1,7 @@
 import './home.scss'
 import {auth} from '../../../API/firebase.config.ts';
 import {useNavigate} from "react-router-dom";
-import Logo from '../../../../public/vite.svg';
+import Logo from '../../../../public/logo-no-text.svg';
 import {BiLogOut, BiUserCircle} from "react-icons/bi";
 import {MdOutlineGroups2} from "react-icons/md";
 import {FaGear} from "react-icons/fa6";

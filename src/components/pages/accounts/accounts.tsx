@@ -143,7 +143,7 @@ function Accounts() {
                 <div className="flex items-center justify-between">
                     <h2 className="p-5 text-lg font-medium text-gray-800 dark:text-white">Accounts</h2>
                     <span className="p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700"
-                          onClick={() => updateState({showModal: true, searchString:''})}>
+                          onClick={() => updateState({showModal: true, searchString: ''})}>
                             <BsSearch/>
                         </span>
                 </div>
@@ -199,7 +199,8 @@ function Accounts() {
                                     }) : 'active'} </p>
                                 </div>
                             </div>
-                            <div className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200">
+                            <div
+                                className="mr-4 p-2 rounded-xl cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200">
                                 <BsInfoCircle size={'1.2rem'}/>
                             </div>
                         </div>
@@ -310,10 +311,11 @@ function Accounts() {
                                     </button>
                                 </div>
                             </div>
-                            <div className="crossButton p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200"
-                                 onClick={() => {
-                                     updateState({showModal: false})
-                                 }}>
+                            <div
+                                className="crossButton p-3 mr-3 rounded-xl cursor-pointer dark:hover:bg-gray-700 hover:bg-gray-200"
+                                onClick={() => {
+                                    updateState({showModal: false})
+                                }}>
                                 <ImCross size={"1rem"}/>
                             </div>
                         </div>

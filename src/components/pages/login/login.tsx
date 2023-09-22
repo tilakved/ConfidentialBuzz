@@ -1,6 +1,6 @@
 import './login.scss'
 import {AnimatePresence, motion} from 'framer-motion';
-import Logo from '../../../../public/vite.svg';
+import Logo from '../../../../public/logo-no-background.svg';
 import Back from '../../../assets/icons/left-arrow-back-svgrepo-com.svg';
 import {useRef, useState} from "react";
 import {failAlert, successAlert} from "../../../swal/swal.ts"
@@ -142,10 +142,9 @@ function Login() {
                         <div
                             className='hidden lg:flex flex-col justify-between bg-light dark:bg-dark lg:p-8 xl:p-12 lg:max-w-sm xl:max-w-lg'>
                             <div className="flex items-center justify-start content-center space-x-3">
-                            <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
+                            <span className="rounded-full h-12 flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
                             </span>
-                                <a className="font-medium text-3xl titleFont uppercase">Confidential Buzz</a>
                             </div>
                             <div className='space-y-5'>
                                 <h1 className="lg:text-2xl xl:text-4xl xl:leading-snug titleFont font-extrabold">Elevating the Voices of Your Friends with Uncompromised Security on Confidential Buzz.</h1>
@@ -156,10 +155,9 @@ function Login() {
                             <div
                                 className="flex lg:hidden justify-between items-center w-full py-4 px-10 bg-light dark:bg-dark">
                                 <div className="flex items-center justify-start content-center space-x-3">
-                            <span className="rounded-full w-12 h-12 flex items-center justify-start content-center">
+                            <span className="rounded-full h-fit flex items-center justify-start content-center">
                                 <img src={Logo} alt=''/>
                             </span>
-                                    <a className="font-medium text-2xl">Confidential Buzz</a>
                                 </div>
                             </div>
                             <div className="flex flex-1 flex-col justify-center max-w-screen-md px-10">
