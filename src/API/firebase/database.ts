@@ -72,7 +72,6 @@ export async function addUser(user: DBUser) {
     return await setDoc(documentRef, {displayName, email, uid, photoURL, lastOnline: "active", conversations: []})
 }
 
-
 export async function createConversation(receiverId: string) {
     if (!auth.currentUser) return;
     const conversation: Omit<Conversation, 'conversationId'> = {

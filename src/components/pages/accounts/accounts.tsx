@@ -152,13 +152,10 @@ function Accounts() {
                     {state.conversationList.map((convo: ConversationUser, index: number) => {
                         return (
                             <button onClick={() => selectConversation(convo.conversationId as string)}
-                                    key={index}
-                                    className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${state.selectedConversationId && state.selectedConversationId === convo.conversationId ? `bg-gray-200 dark:bg-gray-800` : ''}`}>
+                                    key={index} className={`flex items-center w-full px-5 py-2 transition-colors duration-200 dark:hover:bg-gray-800 gap-x-2 hover:bg-gray-100 focus:outline-none ${state.selectedConversationId && state.selectedConversationId === convo.conversationId ? `bg-gray-200 dark:bg-gray-800` : ''}`}>
                                 <div className="relative">
                                     <img className="object-cover w-8 h-8 rounded-full"
-
-                                         src={convo.photoURL}
-                                         alt=""/>
+                                         src={convo.photoURL} alt=""/>
                                     {convo?.lastOnline === 'active' &&
                                         <span
                                             className="h-2 w-2 rounded-full bg-emerald-500 absolute right-0.5 ring-1 ring-white bottom-0"></span>
@@ -166,7 +163,7 @@ function Accounts() {
                                 </div>
                                 <div className="text-left rtl:text-right">
                                     <h1 className="text-sm font-medium text-gray-700 capitalize dark:text-white">{convo.displayName}</h1>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{convo.lastMessage}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 lastMessage">{convo.lastMessage}</p>
                                 </div>
                             </button>
                         )
